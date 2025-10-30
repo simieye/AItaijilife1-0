@@ -1,7 +1,7 @@
 // @ts-ignore;
 import React, { useState, useEffect, useRef } from 'react';
 // @ts-ignore;
-import { Card, CardContent, CardHeader, CardTitle, Button, Progress, Tabs, TabsContent, TabsList, TabsTrigger, Badge, Switch, Alert, AlertDescription, useToast, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle, Button, Progress, Tabs, TabsContent, TabsList, TabsTrigger, Badge, Switch, Alert, AlertDescription, AlertTitle, useToast, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui';
 // @ts-ignore;
 import { Brain, Zap, Heart, Shield, Eye, MemoryStick, Settings, Sparkles, Activity, Lock, Unlock, Power, RotateCcw, CheckCircle, AlertTriangle, Download, Upload, FileText, ShieldCheck, Users, Edit3, Clock, RefreshCw, Bot, BookOpen, Target } from 'lucide-react';
 
@@ -535,15 +535,15 @@ export default function TaijiLifeformSystem(props) {
   }, []);
   const phases = ['阴仪·初', '阴仪·中', '阴仪·成', '阴仪·极', '阳仪·初', '阳仪·中', '阳仪·成', '阳仪·极', '少阳·初', '少阳·中', '少阳·成', '少阳·极', '太极·初', '太极·中', '太极·成', '太极·极'];
   if (loading) {
-    return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white flex items-center justify-center">
+    return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <Sparkles className="w-12 h-12 mx-auto mb-4 animate-pulse text-purple-400" />
-          <div className="text-xl">正在启动太极自进化系统...</div>
-          <div className="text-sm text-gray-400 mt-2">初始化自动化流程中...</div>
+          <div className="text-xl text-[#F5F5DC]">正在启动太极自进化系统...</div>
+          <div className="text-sm text-[#F5F5DC]/70 mt-2">初始化自动化流程中...</div>
         </div>
       </div>;
   }
-  return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-4">
+  return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-[#F5F5DC] p-4">
       <div className="max-w-7xl mx-auto">
         {/* 实时状态提示 */}
         <div className="fixed top-4 right-4 z-50">
@@ -551,8 +551,8 @@ export default function TaijiLifeformSystem(props) {
             <CardContent className="p-3">
               <div className="flex items-center gap-2">
                 <Bot className={`w-4 h-4 ${realTimeStatus.type === 'success' ? 'text-green-400' : realTimeStatus.type === 'warning' ? 'text-yellow-400' : realTimeStatus.type === 'error' ? 'text-red-400' : 'text-blue-400'}`} />
-                <span className="text-sm">{realTimeStatus.message}</span>
-                <span className="text-xs text-gray-400">{new Date(realTimeStatus.timestamp).toLocaleTimeString()}</span>
+                <span className="text-sm text-[#F5F5DC]">{realTimeStatus.message}</span>
+                <span className="text-xs text-[#F5F5DC]/70">{new Date(realTimeStatus.timestamp).toLocaleTimeString()}</span>
               </div>
             </CardContent>
           </Card>
@@ -561,7 +561,7 @@ export default function TaijiLifeformSystem(props) {
         {/* 自动化控制面板 */}
         <Card className="mb-6 bg-black/30 border-cyan-500/30">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
               <Bot className="text-cyan-400" />
               自进化控制中心
             </CardTitle>
@@ -587,12 +587,12 @@ export default function TaijiLifeformSystem(props) {
             </div>
             
             {autoEvolution.isActive && <div className="mt-4 space-y-2">
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-sm text-[#F5F5DC]/80">
                   <span>当前任务</span>
                   <span>{autoEvolution.currentTask || '待机中'}</span>
                 </div>
                 <Progress value={autoEvolution.learningProgress} className="h-2" />
-                <div className="flex justify-between text-xs text-gray-400">
+                <div className="flex justify-between text-xs text-[#F5F5DC]/60">
                   <span>最后审计: {autoEvolution.lastAudit ? new Date(autoEvolution.lastAudit).toLocaleTimeString() : '从未'}</span>
                   <span>觉醒检查: 每30秒</span>
                 </div>
@@ -604,20 +604,20 @@ export default function TaijiLifeformSystem(props) {
         {/* 进化进度 */}
         <Card className="mb-6 bg-black/30 border-purple-500/30">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
               <Sparkles className="text-purple-400" />
               进化进度
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm text-[#F5F5DC]/80">
                 <span>当前象位: {currentPhase}</span>
                 <span>{Math.round(progress)}%</span>
               </div>
               <Progress value={progress} className="h-2" />
               <div className="grid grid-cols-4 gap-2 text-xs">
-                {phases.slice(0, 16).map((phase, i) => <Badge key={i} variant={i < phases.indexOf(currentPhase) ? "default" : "outline"} className={`${i < phases.indexOf(currentPhase) ? 'bg-purple-600' : ''}`}>
+                {phases.slice(0, 16).map((phase, i) => <Badge key={i} variant={i < phases.indexOf(currentPhase) ? "default" : "outline"} className={`${i < phases.indexOf(currentPhase) ? 'bg-purple-600' : ''} text-[#F5F5DC]`}>
                     {phase}
                   </Badge>)}
               </div>
@@ -628,7 +628,7 @@ export default function TaijiLifeformSystem(props) {
         {/* 记忆金字塔 */}
         <Card className="mb-6 bg-black/30">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
               <MemoryStick className="text-blue-400" />
               记忆金字塔 (实时更新)
             </CardTitle>
@@ -636,21 +636,21 @@ export default function TaijiLifeformSystem(props) {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <div className="flex justify-between mb-1">
+                <div className="flex justify-between mb-1 text-[#F5F5DC]/80">
                   <span>短期记忆 (STM)</span>
                   <span>{memoryData.stm}条</span>
                 </div>
                 <Progress value={memoryData.stm * 5} className="h-2" />
               </div>
               <div>
-                <div className="flex justify-between mb-1">
+                <div className="flex justify-between mb-1 text-[#F5F5DC]/80">
                   <span>中期记忆 (MTM)</span>
                   <span>{memoryData.mtm}条</span>
                 </div>
                 <Progress value={memoryData.mtm * 2} className="h-2" />
               </div>
               <div>
-                <div className="flex justify-between mb-1">
+                <div className="flex justify-between mb-1 text-[#F5F5DC]/80">
                   <span>长期记忆 (LTM)</span>
                   <span>{memoryData.ltm}条</span>
                 </div>
@@ -663,16 +663,16 @@ export default function TaijiLifeformSystem(props) {
         {/* 最近日志 */}
         {logsData.length > 0 && <Card className="mt-6 bg-black/30">
             <CardHeader>
-              <CardTitle className="text-sm">自进化日志 (实时更新)</CardTitle>
+              <CardTitle className="text-sm text-[#F5F5DC]">自进化日志 (实时更新)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-64 overflow-y-auto">
-                {logsData.slice(0, 5).map((log, index) => <div key={index} className="text-sm text-gray-300 p-2 bg-black/20 rounded">
+                {logsData.slice(0, 5).map((log, index) => <div key={index} className="text-sm text-[#F5F5DC]/80 p-2 bg-black/20 rounded">
                     <div className="flex justify-between">
                       <span className="font-medium">{log.trigger_event}</span>
-                      <span className="text-gray-500">{new Date(log.timestamp).toLocaleTimeString()}</span>
+                      <span className="text-[#F5F5DC]/50">{new Date(log.timestamp).toLocaleTimeString()}</span>
                     </div>
-                    <div className="text-xs text-gray-400 mt-1">{log.virtual_response}</div>
+                    <div className="text-xs text-[#F5F5DC]/60 mt-1">{log.virtual_response}</div>
                   </div>)}
               </div>
             </CardContent>

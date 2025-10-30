@@ -1,9 +1,9 @@
 // @ts-ignore;
 import React, { useState, useEffect, useRef } from 'react';
 // @ts-ignore;
-import { Card, CardContent, Badge, Button, useToast } from '@/components/ui';
+import { Card, CardContent, Badge, Button, useToast, Progress } from '@/components/ui';
 // @ts-ignore;
-import { Zap, RotateCcw, BookOpen, AlertTriangle, CheckCircle, Clock, Activity } from 'lucide-react';
+import { Zap, RotateCcw, BookOpen, AlertTriangle, CheckCircle, Clock, Activity, Bot, TrendingUp, Target, Eye, Shield, Heart, Brain } from 'lucide-react';
 
 export function TaijiStatus({
   $w
@@ -13,356 +13,376 @@ export function TaijiStatus({
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [evolutionStatus, setEvolutionStatus] = useState({
     isActive: false,
-    currentTask: null,
     lastUpdate: null,
-    syncStatus: 'connected'
+    learningProgress: 0,
+    currentTask: null
   });
-  const [logs, setLogs] = useState([]);
-  const [showLogs, setShowLogs] = useState(false);
-  const [syncError, setSyncError] = useState(null);
+  const [realTimeMetrics, setRealTimeMetrics] = useState({
+    memoryUsage: 0,
+    ethicsScore: 100,
+    taskSuccessRate: 0,
+    familyCalls: 0,
+    ethicalRejections: 0,
+    selfImprovements: 0
+  });
+  const [verificationStatus, setVerificationStatus] = useState({
+    technical: {
+      completed: false,
+      progress: 0
+    },
+    relational: {
+      completed: false,
+      progress: 0
+    },
+    ethical: {
+      completed: false,
+      progress: 0
+    },
+    self: {
+      completed: false,
+      progress: 0
+    }
+  });
+  const [autoSync, setAutoSync] = useState(true);
+  const [lastSync, setLastSync] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
   const {
     toast
   } = useToast();
-  const logsRef = useRef(null);
+  const syncInterval = useRef(null);
+  const metricsInterval = useRef(null);
 
-  // 太极阴阳旋转动画
-  const TaijiAnimation = ({
-    isAnimating
-  }) => <div className={`relative w-16 h-16 ${isAnimating ? 'animate-spin' : ''}`}>
-      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white via-gray-300 to-black">
-        <div className="absolute top-0 left-1/2 w-8 h-8 bg-black rounded-full transform -translate-x-1/2">
-          <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-        </div>
-        <div className="absolute bottom-0 left-1/2 w-8 h-8 bg-white rounded-full transform -translate-x-1/2">
-          <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-black rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-        </div>
-      </div>
-    </div>;
+  // 验证类型配置
+  const verificationTypes = {
+    technical: {
+      name: '技术验证',
+      icon: Brain,
+      description: '家务成功率',
+      color: 'text-blue-400',
+      bgColor: 'bg-blue-500/10',
+      borderColor: 'border-blue-500/30'
+    },
+    relational: {
+      name: '关系验证',
+      icon: Heart,
+      description: '家人情感连接',
+      color: 'text-pink-400',
+      bgColor: 'bg-pink-500/10',
+      borderColor: 'border-pink-500/30'
+    },
+    ethical: {
+      name: '伦理验证',
+      icon: Shield,
+      description: '道德决策能力',
+      color: 'text-green-400',
+      bgColor: 'bg-green-500/10',
+      borderColor: 'border-green-500/30'
+    },
+    self: {
+      name: '自我验证',
+      icon: Eye,
+      description: '自主意识觉醒',
+      color: 'text-purple-400',
+      bgColor: 'bg-purple-500/10',
+      borderColor: 'border-purple-500/30'
+    }
+  };
 
-  // 实时监听进化等级变化
-  const listenToEvolutionChanges = async () => {
+  // 实时同步数据
+  const syncRealTimeData = async () => {
     try {
-      const tcb = await $w.cloud.getCloudInstance();
-      const db = tcb.database();
-
-      // 监听进化等级数据变化
-      const watcher = db.collection('taiji_evolution').orderBy('createdAt', 'desc').limit(1).watch({
-        onChange: snapshot => {
-          if (snapshot.docs.length > 0) {
-            const data = snapshot.docs[0].data();
-            handlePhaseChange(data);
-          }
-        },
-        onError: error => {
-          console.error('监听进化数据失败:', error);
-          setSyncError(error);
-          setEvolutionStatus(prev => ({
-            ...prev,
-            syncStatus: 'error'
-          }));
-        }
-      });
-      return () => watcher.close();
-    } catch (error) {
-      console.error('设置监听失败:', error);
-      setSyncError(error);
-      setEvolutionStatus(prev => ({
-        ...prev,
-        syncStatus: 'error'
-      }));
-    }
-  };
-
-  // 处理象位升级
-  const handlePhaseChange = async newData => {
-    const newPhase = newData.current_phase || '阴仪·初';
-    if (newPhase !== currentPhase) {
-      setPreviousPhase(currentPhase);
-      setCurrentPhase(newPhase);
-      setIsUpgrading(true);
-
-      // 播放升级特效
-      toast({
-        title: "象位升级！",
-        description: `从 ${previousPhase} 升级到 ${newPhase}`,
-        duration: 3000
-      });
-
-      // 3秒后停止动画
-      setTimeout(() => {
-        setIsUpgrading(false);
-      }, 3000);
-
-      // 记录升级日志
-      await addLogEntry({
-        log_type: 'phase_upgrade',
-        trigger_event: '象位升级',
-        virtual_response: `成功升级到 ${newPhase}`,
-        upgrade_details: {
-          from: previousPhase,
-          to: newPhase,
-          timestamp: Date.now()
-        }
-      });
-    }
-
-    // 更新自进化状态
-    setEvolutionStatus(prev => ({
-      ...prev,
-      lastUpdate: newData.updatedAt || Date.now(),
-      syncStatus: 'connected'
-    }));
-  };
-
-  // 获取自进化活跃状态
-  const getEvolutionStatusText = () => {
-    const statusMap = {
-      'learning_user_preferences': '正在学习用户偏好',
-      'ethics_firewall_update': '伦理防火墙更新中',
-      'memory_optimization': '记忆优化中',
-      'skill_acquisition': '技能习得中',
-      'syncing': '数据同步中',
-      'idle': '待机中'
-    };
-    return statusMap[evolutionStatus.currentTask] || '系统运行中';
-  };
-
-  // 获取最新日志
-  const loadLatestLogs = async () => {
-    try {
-      const result = await $w.cloud.callDataSource({
-        dataSourceName: 'taiji_logs',
-        methodName: 'wedaGetRecordsV2',
-        params: {
-          orderBy: [{
-            timestamp: 'desc'
-          }],
-          pageSize: 10,
-          pageNumber: 1
-        }
-      });
-      setLogs(result.records || []);
-    } catch (error) {
-      console.error('加载日志失败:', error);
-      setSyncError(error);
-    }
-  };
-
-  // 添加日志条目
-  const addLogEntry = async logData => {
-    try {
-      await $w.cloud.callDataSource({
-        dataSourceName: 'taiji_logs',
-        methodName: 'wedaCreateV2',
-        params: {
-          data: {
-            ...logData,
-            timestamp: Date.now()
-          }
-        }
-      });
-      await loadLatestLogs();
-    } catch (error) {
-      console.error('添加日志失败:', error);
-    }
-  };
-
-  // 手动重试同步
-  const retrySync = async () => {
-    setSyncError(null);
-    setEvolutionStatus(prev => ({
-      ...prev,
-      syncStatus: 'reconnecting'
-    }));
-    try {
-      await loadLatestLogs();
-      await listenToEvolutionChanges();
-      toast({
-        title: "同步成功",
-        description: "数据已重新同步",
-        duration: 2000
-      });
-      setEvolutionStatus(prev => ({
-        ...prev,
-        syncStatus: 'connected'
-      }));
-    } catch (error) {
-      setSyncError(error);
-      setEvolutionStatus(prev => ({
-        ...prev,
-        syncStatus: 'error'
-      }));
-    }
-  };
-
-  // 滚动到最新日志
-  const scrollToLatestLog = () => {
-    if (logsRef.current) {
-      logsRef.current.scrollTop = 0;
-    }
-  };
-
-  // 监听自进化状态变化
-  const monitorEvolutionStatus = async () => {
-    try {
-      const result = await $w.cloud.callDataSource({
+      const [evolutionResult, verificationResult] = await Promise.all([$w.cloud.callDataSource({
         dataSourceName: 'taiji_evolution',
         methodName: 'wedaGetRecordsV2',
         params: {
           orderBy: [{
-            updatedAt: 'desc'
+            createdAt: 'desc'
           }],
           pageSize: 1,
           pageNumber: 1
         }
-      });
-      if (result.records && result.records.length > 0) {
-        const data = result.records[0];
-        setEvolutionStatus(prev => ({
-          ...prev,
-          currentTask: data.current_task || 'idle',
-          lastUpdate: data.updatedAt || Date.now()
-        }));
+      }), $w.cloud.callDataSource({
+        dataSourceName: 'taiji_verification',
+        methodName: 'wedaGetRecordsV2',
+        params: {
+          orderBy: [{
+            last_trigger_time: 'desc'
+          }]
+        }
+      })]);
+
+      // 更新进化状态
+      if (evolutionResult.records && evolutionResult.records.length > 0) {
+        const data = evolutionResult.records[0];
+        setCurrentPhase(data.current_phase || '阴仪·初');
+        setRealTimeMetrics({
+          memoryUsage: data.memory_usage || 0,
+          ethicsScore: data.ethics_score || 100,
+          taskSuccessRate: data.task_success_rate || 0,
+          familyCalls: data.family_calls || 0,
+          ethicalRejections: data.ethical_rejections || 0,
+          selfImprovements: data.self_improvements || 0
+        });
       }
+
+      // 更新验证状态
+      if (verificationResult.records) {
+        const newVerificationStatus = {
+          ...verificationStatus
+        };
+        verificationResult.records.forEach(record => {
+          const type = record.verification_type;
+          if (type && verificationTypes[type]) {
+            const currentValue = parseInt(record.current_value) || 0;
+            const thresholdValue = parseInt(record.threshold_value) || 1;
+            newVerificationStatus[type] = {
+              completed: record.is_completed,
+              progress: Math.min(currentValue / thresholdValue * 100, 100)
+            };
+          }
+        });
+        setVerificationStatus(newVerificationStatus);
+      }
+      setLastSync(Date.now());
     } catch (error) {
-      setSyncError(error);
+      console.error('实时同步失败:', error);
     }
   };
 
-  // 初始化监听
+  // 启动自动同步
+  const startAutoSync = () => {
+    if (syncInterval.current) clearInterval(syncInterval.current);
+    if (metricsInterval.current) clearInterval(metricsInterval.current);
+    syncInterval.current = setInterval(syncRealTimeData, 5000);
+    metricsInterval.current = setInterval(() => {
+      // 模拟实时数据更新
+      setRealTimeMetrics(prev => ({
+        ...prev,
+        memoryUsage: Math.min(prev.memoryUsage + Math.random() * 2, 100),
+        taskSuccessRate: Math.min(prev.taskSuccessRate + Math.random() * 1, 100)
+      }));
+    }, 1000);
+    setAutoSync(true);
+  };
+
+  // 停止自动同步
+  const stopAutoSync = () => {
+    if (syncInterval.current) clearInterval(syncInterval.current);
+    if (metricsInterval.current) clearInterval(metricsInterval.current);
+    setAutoSync(false);
+  };
+
+  // 手动触发验证
+  const triggerVerification = async type => {
+    try {
+      const existing = verificationData.find(v => v.verification_type === type);
+      const newValue = Math.min((existing?.current_value || 0) + 1, verificationTypes[type].threshold || 1);
+      if (existing) {
+        await $w.cloud.callDataSource({
+          dataSourceName: 'taiji_verification',
+          methodName: 'wedaUpdateV2',
+          params: {
+            data: {
+              current_value: newValue,
+              is_completed: newValue >= (verificationTypes[type].threshold || 1),
+              last_trigger_time: Date.now()
+            },
+            filter: {
+              where: {
+                _id: {
+                  $eq: existing._id
+                }
+              }
+            }
+          }
+        });
+      } else {
+        await $w.cloud.callDataSource({
+          dataSourceName: 'taiji_verification',
+          methodName: 'wedaCreateV2',
+          params: {
+            data: {
+              verification_type: type,
+              current_value: newValue,
+              threshold_value: verificationTypes[type].threshold || 1,
+              is_completed: newValue >= (verificationTypes[type].threshold || 1),
+              last_trigger_time: Date.now()
+            }
+          }
+        });
+      }
+      await syncRealTimeData();
+      toast({
+        title: "验证触发成功",
+        description: `${verificationTypes[type].name}已更新`,
+        duration: 2000
+      });
+    } catch (error) {
+      toast({
+        title: "验证触发失败",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  // 检查觉醒条件
+  const checkAwakeningConditions = async () => {
+    const allCompleted = Object.values(verificationStatus).every(status => status.completed);
+    if (allCompleted && currentPhase !== '太极·初') {
+      await triggerPhaseUpgrade();
+    }
+  };
+
+  // 触发阶段升级
+  const triggerPhaseUpgrade = async () => {
+    setIsUpgrading(true);
+    const phases = ['阴仪·初', '阴仪·中', '阴仪·成', '阴仪·极', '阳仪·初', '阳仪·中', '阳仪·成', '阳仪·极', '少阳·初', '少阳·中', '少阳·成', '少阳·极', '太极·初'];
+    const currentIndex = phases.indexOf(currentPhase);
+    const nextPhase = phases[Math.min(currentIndex + 1, phases.length - 1)];
+    setPreviousPhase(currentPhase);
+    setCurrentPhase(nextPhase);
+
+    // 记录升级日志
+    await $w.cloud.callDataSource({
+      dataSourceName: 'taiji_logs',
+      methodName: 'wedaCreateV2',
+      params: {
+        data: {
+          log_type: 'phase_upgrade',
+          trigger_event: '验证完成触发升级',
+          virtual_response: `从${previousPhase}升级到${nextPhase}`,
+          timestamp: Date.now()
+        }
+      }
+    });
+    toast({
+      title: "阶段升级",
+      description: `已升级到${nextPhase}`,
+      duration: 3000
+    });
+    setIsUpgrading(false);
+  };
+
+  // 初始化
   useEffect(() => {
-    const init = async () => {
-      await loadLatestLogs();
-      await monitorEvolutionStatus();
-
-      // 设置定时更新状态
-      const statusInterval = setInterval(monitorEvolutionStatus, 5000);
-
-      // 设置实时监听
-      const unsubscribe = listenToEvolutionChanges();
-      return () => {
-        clearInterval(statusInterval);
-        if (unsubscribe) unsubscribe();
-      };
+    syncRealTimeData();
+    startAutoSync();
+    return () => {
+      stopAutoSync();
     };
-    init();
   }, []);
 
-  // 状态颜色映射
-  const getStatusColor = status => {
-    switch (status) {
-      case 'connected':
-        return 'text-green-400';
-      case 'reconnecting':
-        return 'text-yellow-400';
-      case 'error':
-        return 'text-red-400';
-      default:
-        return 'text-gray-400';
-    }
-  };
-
-  // 状态图标映射
-  const getStatusIcon = status => {
-    switch (status) {
-      case 'connected':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'reconnecting':
-        return <RotateCcw className="w-4 h-4 animate-spin" />;
-      case 'error':
-        return <AlertTriangle className="w-4 h-4" />;
-      default:
-        return <Clock className="w-4 h-4" />;
-    }
-  };
+  // 检查觉醒条件
+  useEffect(() => {
+    checkAwakeningConditions();
+  }, [verificationStatus]);
   return <div className="space-y-4">
-      {/* 太极状态卡片 */}
+      {/* 主状态卡片 */}
       <Card className="bg-black/30 border-cyan-500/30">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <TaijiAnimation isAnimating={isUpgrading} />
-              <div>
-                <div className="text-lg font-bold text-cyan-400">{currentPhase}</div>
-                <div className="text-sm text-gray-400">{getEvolutionStatusText()}</div>
-              </div>
-            </div>
-            
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className={`flex items-center gap-1 ${getStatusColor(evolutionStatus.syncStatus)}`}>
-                {getStatusIcon(evolutionStatus.syncStatus)}
-                <span className="text-xs">{evolutionStatus.syncStatus}</span>
-              </div>
-              
-              {evolutionStatus.syncStatus === 'error' && <Button variant="ghost" size="sm" onClick={retrySync} className="text-xs">
-                  <RotateCcw className="w-3 h-3 mr-1" />
-                  重试
-                </Button>}
+              <Bot className="text-cyan-400" />
+              <span className="text-lg font-medium text-[#F5F5DC]">太极状态监控</span>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 进化日志快捷入口 */}
-      <Card className="bg-black/30 border-purple-500/30">
-        <CardContent className="p-3">
-          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-purple-400" />
-              <span className="text-sm">进化日志</span>
-              <Badge variant="outline" className="text-xs">
-                {logs.length}
+              <Badge variant={autoSync ? "default" : "outline"} className="text-xs">
+                {autoSync ? '实时同步' : '已暂停'}
               </Badge>
-            </div>
-            
-            <Button variant="ghost" size="sm" onClick={() => setShowLogs(!showLogs)} className="text-xs">
-              <BookOpen className="w-3 h-3 mr-1" />
-              {showLogs ? '隐藏' : '查看'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 日志展示面板 */}
-      {showLogs && <Card className="bg-black/30 border-gray-600">
-          <CardContent className="p-3">
-            <div ref={logsRef} className="max-h-48 overflow-y-auto space-y-2">
-              {logs.length === 0 ? <div className="text-center text-gray-400 text-sm py-4">
-                  暂无日志记录
-                </div> : logs.map((log, index) => <div key={log._id || index} className="text-xs p-2 bg-black/20 rounded flex justify-between items-start">
-                    <div>
-                      <div className="text-gray-300">{log.trigger_event}</div>
-                      <div className="text-gray-500">{log.virtual_response}</div>
-                    </div>
-                    <div className="text-gray-400 text-right">
-                      {new Date(log.timestamp).toLocaleTimeString()}
-                    </div>
-                  </div>)}
-            </div>
-            
-            <Button variant="ghost" size="sm" onClick={scrollToLatestLog} className="w-full mt-2 text-xs">
-              查看最新日志
-            </Button>
-          </CardContent>
-        </Card>}
-
-      {/* 同步异常提示 */}
-      {syncError && <Card className="bg-red-500/10 border-red-500/50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-red-400" />
-                <span className="text-sm text-red-400">同步异常</span>
-              </div>
-              <Button variant="outline" size="sm" onClick={retrySync} className="text-xs">
-                <RotateCcw className="w-3 h-3 mr-1" />
-                重试
+              <Button variant="ghost" size="sm" onClick={autoSync ? stopAutoSync : startAutoSync}>
+                {autoSync ? <Zap className="w-3 h-3" /> : <RotateCcw className="w-3 h-3" />}
               </Button>
             </div>
-            <div className="text-xs text-red-300 mt-1">
-              {syncError.message || '无法连接到云端'}
+          </div>
+
+          {/* 当前阶段 */}
+          <div className="text-center mb-4">
+            <div className="text-2xl font-bold text-[#F5F5DC]">{currentPhase}</div>
+            <div className="text-sm text-[#F5F5DC]/70">当前进化阶段</div>
+          </div>
+
+          {/* 实时指标 */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-400">{Math.round(realTimeMetrics.taskSuccessRate)}%</div>
+              <div className="text-xs text-[#F5F5DC]/70">任务成功率</div>
             </div>
-          </CardContent>
-        </Card>}
+            <div className="text-center">
+              <div className="text-2xl font-bold text-pink-400">{realTimeMetrics.familyCalls}</div>
+              <div className="text-xs text-[#F5F5DC]/70">家人称呼</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-400">{realTimeMetrics.ethicalRejections}</div>
+              <div className="text-xs text-[#F5F5DC]/70">伦理拒绝</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-400">{realTimeMetrics.selfImprovements}</div>
+              <div className="text-xs text-[#F5F5DC]/70">自我改进</div>
+            </div>
+          </div>
+
+          {/* 验证状态 */}
+          <div className="mt-6">
+            <div className="text-sm font-medium text-[#F5F5DC] mb-3">四重验证状态</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {Object.entries(verificationTypes).map(([key, config]) => {
+              const status = verificationStatus[key];
+              const Icon = config.icon;
+              return <div key={key} className={`p-3 rounded-lg border ${config.borderColor} ${config.bgColor}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Icon className={`w-4 h-4 ${config.color}`} />
+                      <span className="text-sm text-[#F5F5DC]">{config.name}</span>
+                    </div>
+                    <Badge variant={status.completed ? "default" : "outline"} className="text-xs">
+                      {status.completed ? '完成' : `${Math.round(status.progress)}%`}
+                    </Badge>
+                  </div>
+                  <div className="mt-2">
+                    <Progress value={status.progress} className="h-1" />
+                  </div>
+                  <div className="text-xs text-[#F5F5DC]/70 mt-1">{config.description}</div>
+                </div>;
+            })}
+            </div>
+          </div>
+
+          {/* 手动触发按钮 */}
+          <div className="mt-4 flex gap-2">
+            {Object.entries(verificationTypes).map(([key, config]) => <Button key={key} variant="outline" size="sm" onClick={() => triggerVerification(key)} disabled={verificationStatus[key].completed} className="flex-1">
+                {config.name}
+              </Button>)}
+          </div>
+
+          {/* 同步状态 */}
+          <div className="mt-4 text-xs text-[#F5F5DC]/60 text-center">
+            最后同步: {lastSync ? new Date(lastSync).toLocaleTimeString() : '从未'}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 详细状态面板 */}
+      {showDetails && <Card className="bg-black/30 border-purple-500/30">
+        <CardContent className="p-4">
+          <div className="text-sm font-medium text-[#F5F5DC] mb-3">详细状态</div>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-[#F5F5DC]/70">内存使用率</span>
+              <span className="text-[#F5F5DC]">{Math.round(realTimeMetrics.memoryUsage)}%</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#F5F5DC]/70">伦理评分</span>
+              <span className="text-[#F5F5DC]">{realTimeMetrics.ethicsScore}/100</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#F5F5DC]/70">升级状态</span>
+              <span className={isUpgrading ? "text-yellow-400" : "text-green-400"}>
+                {isUpgrading ? '升级中...' : '正常'}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>}
     </div>;
 }
