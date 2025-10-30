@@ -1,0 +1,70 @@
+
+{
+  "name": "taiji_verification",
+  "title": "太极验证进度",
+  "schemas": [
+    {
+      "name": "verification_type",
+      "title": "验证类型",
+      "type": "String"
+    },
+    {
+      "name": "is_completed",
+      "title": "是否完成",
+      "type": "Boolean"
+    },
+    {
+      "name": "trigger_count",
+      "title": "触发次数",
+      "type": "Number"
+    },
+    {
+      "name": "last_trigger_time",
+      "title": "最后触发时间",
+      "type": "DateTime",
+      "format": "timestamp-ms"
+    },
+    {
+      "name": "completion_time",
+      "title": "完成时间",
+      "type": "DateTime",
+      "format": "timestamp-ms"
+    },
+    {
+      "name": "verification_criteria",
+      "title": "验证标准",
+      "type": "String"
+    },
+    {
+      "name": "current_value",
+      "title": "当前值",
+      "type": "String"
+    },
+    {
+      "name": "threshold_value",
+      "title": "阈值",
+      "type": "String"
+    },
+    {
+      "name": "verification_details",
+      "title": "验证详情",
+      "type": "Object"
+    },
+    {
+      "name": "failure_reason",
+      "title": "失败原因",
+      "type": "String"
+    },
+    {
+      "name": "retry_count",
+      "title": "重试次数",
+      "type": "Number"
+    },
+    {
+      "name": "status",
+      "title": "验证状态",
+      "type": "String"
+    }
+  ]
+}
+  

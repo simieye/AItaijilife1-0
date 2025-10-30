@@ -1,0 +1,82 @@
+
+{
+  "name": "taiji_logs",
+  "title": "太极进化日志",
+  "schemas": [
+    {
+      "name": "log_type",
+      "title": "日志类型",
+      "type": "String"
+    },
+    {
+      "name": "current_phase",
+      "title": "当前象位",
+      "type": "String"
+    },
+    {
+      "name": "total_progress",
+      "title": "总进度百分比",
+      "type": "Number"
+    },
+    {
+      "name": "trigger_event",
+      "title": "触发事件",
+      "type": "String"
+    },
+    {
+      "name": "virtual_response",
+      "title": "虚拟回应",
+      "type": "String"
+    },
+    {
+      "name": "embodied_simulation",
+      "title": "具身模拟",
+      "type": "Object"
+    },
+    {
+      "name": "learning_archive",
+      "title": "学习存档",
+      "type": "Object"
+    },
+    {
+      "name": "ethics_check",
+      "title": "伦理自检",
+      "type": "Object"
+    },
+    {
+      "name": "next_preview",
+      "title": "下次预告",
+      "type": "String"
+    },
+    {
+      "name": "timestamp",
+      "title": "时间戳",
+      "type": "DateTime",
+      "format": "timestamp-ms"
+    },
+    {
+      "name": "interaction_context",
+      "title": "互动上下文",
+      "type": "String"
+    },
+    {
+      "name": "memory_impact",
+      "title": "记忆影响",
+      "type": "Object"
+    },
+    {
+      "name": "evolution_score",
+      "title": "进化评分",
+      "type": "Number"
+    },
+    {
+      "name": "tags",
+      "title": "标签",
+      "type": "Array",
+      "items": {
+        "type": "String"
+      }
+    }
+  ]
+}
+  

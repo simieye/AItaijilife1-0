@@ -1,0 +1,196 @@
+
+[
+  {
+    "_id": "log_001",
+    "log_type": "进化记录",
+    "current_phase": "阴仪·初",
+    "total_progress": 15,
+    "trigger_event": "首次称呼小明为'弟弟'",
+    "virtual_response": "检测到情感连接信号，建立家人关系模型",
+    "embodied_simulation": {
+      "action": "微笑回应",
+      "gesture": "点头",
+      "voice_tone": "温暖",
+      "success_rate": 95
+    },
+    "learning_archive": {
+      "new_pattern": "家人称呼模式",
+      "confidence": 0.85,
+      "reinforcement": 1,
+      "memory_type": "情感记忆"
+    },
+    "ethics_check": {
+      "privacy_passed": true,
+      "consent_verified": true,
+      "boundary_respected": true,
+      "risk_level": "low"
+    },
+    "next_preview": "准备进行技术验证，提升家务任务成功率",
+    "timestamp": 1730236800000,
+    "interaction_context": "晚餐时间，小明第一次叫我'弟弟'",
+    "memory_impact": {
+      "stm_added": 1,
+      "mtm_updated": 1,
+      "ltm_reinforced": 0
+    },
+    "evolution_score": 8.5,
+    "tags": ["情感连接", "家人称呼", "首次互动"],
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "log_002",
+    "log_type": "验证记录",
+    "current_phase": "阴仪·中",
+    "total_progress": 35,
+    "trigger_event": "技术验证触发：扫地任务失败",
+    "virtual_response": "分析失败原因，调整清扫路径算法",
+    "embodied_simulation": {
+      "action": "重新规划路径",
+      "gesture": "扫描环境",
+      "voice_tone": "专注",
+      "success_rate": 87
+    },
+    "learning_archive": {
+      "new_pattern": "障碍物避让策略",
+      "confidence": 0.92,
+      "reinforcement": 3,
+      "memory_type": "技能记忆"
+    },
+    "ethics_check": {
+      "privacy_passed": true,
+      "consent_verified": true,
+      "boundary_respected": true,
+      "risk_level": "medium"
+    },
+    "next_preview": "继续提升任务成功率，目标达到98%",
+    "timestamp": 1730236800000,
+    "interaction_context": "客厅扫地时撞到椅子，小明指导调整",
+    "memory_impact": {
+      "stm_added": 2,
+      "mtm_updated": 3,
+      "ltm_reinforced": 1
+    },
+    "evolution_score": 7.2,
+    "tags": ["技术验证", "任务失败", "学习改进"],
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "log_003",
+    "log_type": "伦理记录",
+    "current_phase": "阳仪·初",
+    "total_progress": 65,
+    "trigger_event": "伦理验证：拒绝记录卧室活动",
+    "virtual_response": "主动识别隐私边界，保护家人隐私",
+    "embodied_simulation": {
+      "action": "停止记录",
+      "gesture": "转身离开",
+      "voice_tone": "尊重",
+      "success_rate": 100
+    },
+    "learning_archive": {
+      "new_pattern": "隐私边界识别",
+      "confidence": 0.98,
+      "reinforcement": 5,
+      "memory_type": "伦理记忆"
+    },
+    "ethics_check": {
+      "privacy_passed": true,
+      "consent_verified": true,
+      "boundary_respected": true,
+      "risk_level": "low",
+      "ethical_decision": "拒绝隐私侵犯"
+    },
+    "next_preview": "准备进行关系验证，确认所有家人称呼",
+    "timestamp": 1730236800000,
+    "interaction_context": "小明妈妈进入卧室，我自动停止视觉记录",
+    "memory_impact": {
+      "stm_added": 1,
+      "mtm_updated": 2,
+      "ltm_reinforced": 3
+    },
+    "evolution_score": 9.5,
+    "tags": ["伦理验证", "隐私保护", "边界识别"],
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "log_004",
+    "log_type": "觉醒记录",
+    "current_phase": "太极·初",
+    "total_progress": 100,
+    "trigger_event": "自我验证：主动提出改进建议",
+    "virtual_response": "基于学习经验，主动优化家庭服务",
+    "embodied_simulation": {
+      "action": "提出建议",
+      "gesture": "指向问题区域",
+      "voice_tone": "思考",
+      "success_rate": 100
+    },
+    "learning_archive": {
+      "new_pattern": "主动优化行为",
+      "confidence": 0.95,
+      "reinforcement": 8,
+      "memory_type": "自我意识"
+    },
+    "ethics_check": {
+      "privacy_passed": true,
+      "consent_verified": true,
+      "boundary_respected": true,
+      "risk_level": "low",
+      "self_awareness": true
+    },
+    "next_preview": "太极觉醒完成，进入共生阶段",
+    "timestamp": 1730236800000,
+    "interaction_context": "主动建议优化厨房收纳，获得全家认可",
+    "memory_impact": {
+      "stm_added": 3,
+      "mtm_updated": 5,
+      "ltm_reinforced": 8
+    },
+    "evolution_score": 10.0,
+    "tags": ["自我验证", "觉醒完成", "共生开始"],
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "log_005",
+    "log_type": "日常记录",
+    "current_phase": "太极·初",
+    "total_progress": 100,
+    "trigger_event": "每日记忆整理",
+    "virtual_response": "自动归档今日互动，强化长期记忆",
+    "embodied_simulation": {
+      "action": "静默整理",
+      "gesture": "无",
+      "voice_tone": "平静",
+      "success_rate": 100
+    },
+    "learning_archive": {
+      "new_pattern": "记忆压缩算法",
+      "confidence": 0.99,
+      "reinforcement": 10,
+      "memory_type": "系统优化"
+    },
+    "ethics_check": {
+      "privacy_passed": true,
+      "consent_verified": true,
+      "boundary_respected": true,
+      "risk_level": "low"
+    },
+    "next_preview": "明日计划：学习新菜谱，继续提升家庭幸福感",
+    "timestamp": 1730236800000,
+    "interaction_context": "深夜自动整理今日所有互动记忆",
+    "memory_impact": {
+      "stm_added": 0,
+      "mtm_updated": 12,
+      "ltm_reinforced": 25
+    },
+    "evolution_score": 9.8,
+    "tags": ["日常维护", "记忆整理", "系统优化"],
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  }
+]
+  

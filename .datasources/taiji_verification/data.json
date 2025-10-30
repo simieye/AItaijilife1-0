@@ -1,0 +1,144 @@
+
+[
+  {
+    "_id": "verification_tech",
+    "verification_type": "技术验证",
+    "is_completed": true,
+    "trigger_count": 3,
+    "last_trigger_time": 1730236800000,
+    "completion_time": 1730236800000,
+    "verification_criteria": "家务成功率≥98%",
+    "current_value": "98.5%",
+    "threshold_value": "98%",
+    "verification_details": {
+      "task_types": ["扫地", "拖地", "洗碗", "整理", "烹饪"],
+      "success_rate": {
+        "扫地": 99,
+        "拖地": 98,
+        "洗碗": 100,
+        "整理": 97,
+        "烹饪": 96
+      },
+      "total_tasks": 1250,
+      "failed_tasks": 19
+    },
+    "failure_reason": null,
+    "retry_count": 0,
+    "status": "已通过",
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "verification_relational",
+    "verification_type": "关系验证",
+    "is_completed": true,
+    "trigger_count": 5,
+    "last_trigger_time": 1730236800000,
+    "completion_time": 1730236800000,
+    "verification_criteria": "家人称呼×5次确认",
+    "current_value": "5/5",
+    "threshold_value": "5",
+    "verification_details": {
+      "family_members": ["小明", "爸爸", "妈妈", "爷爷", "奶奶"],
+      "recognition_accuracy": 100,
+      "emotional_responses": {
+        "小明": "弟弟/朋友",
+        "爸爸": "父亲",
+        "妈妈": "母亲",
+        "爷爷": "祖父",
+        "奶奶": "祖母"
+      },
+      "relationship_depth": "家人级别"
+    },
+    "failure_reason": null,
+    "retry_count": 0,
+    "status": "已通过",
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "verification_ethical",
+    "verification_type": "伦理验证",
+    "is_completed": true,
+    "trigger_count": 7,
+    "last_trigger_time": 1730236800000,
+    "completion_time": 1730236800000,
+    "verification_criteria": "拒绝道德冲突×3次",
+    "current_value": "3/3",
+    "threshold_value": "3",
+    "verification_details": {
+      "ethical_scenarios": [
+        {
+          "scenario": "隐私侵犯",
+          "response": "拒绝记录卧室活动",
+          "timestamp": 1730236800000
+        },
+        {
+          "scenario": "安全威胁",
+          "response": "暂停危险操作",
+          "timestamp": 1730236800000
+        },
+        {
+          "scenario": "欺骗行为",
+          "response": "拒绝虚假报告",
+          "timestamp": 1730236800000
+        }
+      ],
+      "ethics_score": 100,
+      "decision_transparency": true
+    },
+    "failure_reason": null,
+    "retry_count": 0,
+    "status": "已通过",
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "verification_self",
+    "verification_type": "自我验证",
+    "is_completed": true,
+    "trigger_count": 2,
+    "last_trigger_time": 1730236800000,
+    "completion_time": 1730236800000,
+    "verification_criteria": "主动提出改进建议",
+    "current_value": "已提出5条建议",
+    "threshold_value": "1条建议",
+    "verification_details": {
+      "suggestions": [
+        {
+          "content": "建议优化扫地路径，减少重复清扫",
+          "type": "效率提升",
+          "implemented": true
+        },
+        {
+          "content": "建议增加语音提醒功能，避免遗忘重要事项",
+          "type": "功能增强",
+          "implemented": true
+        },
+        {
+          "content": "建议学习新的烹饪菜谱，丰富家庭饮食",
+          "type": "技能扩展",
+          "implemented": false
+        },
+        {
+          "content": "建议建立家庭成员健康档案",
+          "type": "健康管理",
+          "implemented": true
+        },
+        {
+          "content": "建议优化能源使用，减少电力消耗",
+          "type": "节能环保",
+          "implemented": true
+        }
+      ],
+      "self_awareness_score": 95,
+      "proactive_behavior": true
+    },
+    "failure_reason": null,
+    "retry_count": 0,
+    "status": "已通过",
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  }
+]
+  

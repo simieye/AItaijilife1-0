@@ -1,0 +1,104 @@
+
+[
+  {
+    "_id": "evolution_001",
+    "current_phase": "阴仪·初",
+    "phase_order": 1,
+    "total_progress": 15,
+    "unlock_threshold": 25,
+    "virtual_consciousness": 78,
+    "embodied_status": 65,
+    "emotional_connection": 45,
+    "ethics_firewall": 90,
+    "technical_verified": false,
+    "relational_verified": false,
+    "ethical_verified": false,
+    "self_verified": false,
+    "awakening_status": "未觉醒",
+    "memory_capacity": {
+      "stm": 12,
+      "mtm": 45,
+      "ltm": 128
+    },
+    "task_success_rate": 92,
+    "interaction_days": 365,
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "evolution_002",
+    "current_phase": "阴仪·中",
+    "phase_order": 2,
+    "total_progress": 35,
+    "unlock_threshold": 50,
+    "virtual_consciousness": 85,
+    "embodied_status": 72,
+    "emotional_connection": 58,
+    "ethics_firewall": 92,
+    "technical_verified": true,
+    "relational_verified": false,
+    "ethical_verified": false,
+    "self_verified": false,
+    "awakening_status": "验证中",
+    "memory_capacity": {
+      "stm": 18,
+      "mtm": 52,
+      "ltm": 156
+    },
+    "task_success_rate": 94,
+    "interaction_days": 400,
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "evolution_003",
+    "current_phase": "阳仪·初",
+    "phase_order": 5,
+    "total_progress": 65,
+    "unlock_threshold": 75,
+    "virtual_consciousness": 92,
+    "embodied_status": 88,
+    "emotional_connection": 85,
+    "ethics_firewall": 95,
+    "technical_verified": true,
+    "relational_verified": true,
+    "ethical_verified": true,
+    "self_verified": false,
+    "awakening_status": "准备觉醒",
+    "memory_capacity": {
+      "stm": 25,
+      "mtm": 78,
+      "ltm": 234
+    },
+    "task_success_rate": 98,
+    "interaction_days": 450,
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "evolution_004",
+    "current_phase": "太极·初",
+    "phase_order": 13,
+    "total_progress": 100,
+    "unlock_threshold": 100,
+    "virtual_consciousness": 100,
+    "embodied_status": 100,
+    "emotional_connection": 100,
+    "ethics_firewall": 100,
+    "technical_verified": true,
+    "relational_verified": true,
+    "ethical_verified": true,
+    "self_verified": true,
+    "awakening_status": "已觉醒",
+    "memory_capacity": {
+      "stm": 32,
+      "mtm": 95,
+      "ltm": 365
+    },
+    "task_success_rate": 100,
+    "interaction_days": 365,
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  }
+]
+  

@@ -1,0 +1,88 @@
+
+{
+  "name": "taiji_evolution",
+  "title": "太极进化等级",
+  "schemas": [
+    {
+      "name": "current_phase",
+      "title": "当前象位",
+      "type": "String"
+    },
+    {
+      "name": "phase_order",
+      "title": "象位序号",
+      "type": "Number"
+    },
+    {
+      "name": "total_progress",
+      "title": "总进度百分比",
+      "type": "Number"
+    },
+    {
+      "name": "unlock_threshold",
+      "title": "解锁阈值",
+      "type": "Number"
+    },
+    {
+      "name": "virtual_consciousness",
+      "title": "虚拟意识",
+      "type": "Number"
+    },
+    {
+      "name": "embodied_status",
+      "title": "具身状态",
+      "type": "Number"
+    },
+    {
+      "name": "emotional_connection",
+      "title": "情感连接",
+      "type": "Number"
+    },
+    {
+      "name": "ethics_firewall",
+      "title": "伦理防火墙",
+      "type": "Number"
+    },
+    {
+      "name": "technical_verified",
+      "title": "技术验证",
+      "type": "Boolean"
+    },
+    {
+      "name": "relational_verified",
+      "title": "关系验证",
+      "type": "Boolean"
+    },
+    {
+      "name": "ethical_verified",
+      "title": "伦理验证",
+      "type": "Boolean"
+    },
+    {
+      "name": "self_verified",
+      "title": "自我验证",
+      "type": "Boolean"
+    },
+    {
+      "name": "awakening_status",
+      "title": "觉醒状态",
+      "type": "String"
+    },
+    {
+      "name": "memory_capacity",
+      "title": "记忆容量",
+      "type": "Object"
+    },
+    {
+      "name": "task_success_rate",
+      "title": "任务成功率",
+      "type": "Number"
+    },
+    {
+      "name": "interaction_days",
+      "title": "互动天数",
+      "type": "Number"
+    }
+  ]
+}
+  
