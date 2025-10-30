@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 // @ts-ignore;
 import { Card, CardContent, CardHeader, CardTitle, Button, Progress, Tabs, TabsContent, TabsList, TabsTrigger, Badge, Switch, Alert, AlertDescription, AlertTitle, useToast, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui';
 // @ts-ignore;
-import { Brain, Zap, Heart, Shield, Eye, MemoryStick, Settings, Sparkles, Activity, Lock, Unlock, Power, RotateCcw, CheckCircle, AlertTriangle, Download, Upload, FileText, ShieldCheck, Users, Edit3, Clock, RefreshCw, Bot, BookOpen, Target } from 'lucide-react';
+import { Brain, Zap, Heart, Shield, Eye, MemoryStick, Settings, Sparkles, Activity, Lock, Unlock, Power, RotateCcw, CheckCircle, AlertTriangle, Download, Upload, FileText, ShieldCheck, Users, Edit3, Clock, RefreshCw, Bot, BookOpen, Target, Play, Pause, Trophy, Star, BrainCircuit, HeartPulse, ShieldAlert, EyeOff } from 'lucide-react';
 
 export default function TaijiLifeformSystem(props) {
   const {
@@ -55,11 +55,50 @@ export default function TaijiLifeformSystem(props) {
     type: 'info',
     timestamp: Date.now()
   });
+  const [memoryTraining, setMemoryTraining] = useState({
+    isActive: false,
+    currentExercise: null,
+    score: 0,
+    level: 1,
+    streak: 0
+  });
 
   // 自动化定时器引用
   const awakeningCheckInterval = useRef(null);
   const ethicsAuditInterval = useRef(null);
   const evolutionMonitorInterval = useRef(null);
+  const memoryTrainingInterval = useRef(null);
+
+  // 记忆训练游戏
+  const memoryExercises = [{
+    id: 'pattern_recognition',
+    name: '模式识别',
+    description: '识别家庭成员的日常习惯模式',
+    icon: BrainCircuit,
+    difficulty: 1,
+    reward: 5
+  }, {
+    id: 'emotion_memory',
+    name: '情感记忆',
+    description: '记住家人的情绪变化和触发因素',
+    icon: HeartPulse,
+    difficulty: 2,
+    reward: 8
+  }, {
+    id: 'preference_learning',
+    name: '偏好学习',
+    description: '学习并记住家人的个性化偏好',
+    icon: Star,
+    difficulty: 3,
+    reward: 12
+  }, {
+    id: 'routine_optimization',
+    name: '习惯优化',
+    description: '优化家庭日常流程的记忆',
+    icon: Trophy,
+    difficulty: 4,
+    reward: 15
+  }];
 
   // 云端 API 接口
   const cloudAPIs = {
@@ -74,8 +113,6 @@ export default function TaijiLifeformSystem(props) {
             verificationData: verificationData
           }
         });
-
-        // 检查是否满足觉醒条件
         if (response.shouldAwaken) {
           await triggerAutoAwakening(response);
         }
@@ -101,8 +138,6 @@ export default function TaijiLifeformSystem(props) {
           }
         });
         setEslExecution(response);
-
-        // 更新学习进度
         if (response.success) {
           await updateLearningProgress(response);
         }
@@ -142,8 +177,6 @@ export default function TaijiLifeformSystem(props) {
           }
         });
         setAuditResults(response.auditResults);
-
-        // 记录审计结果
         await addLogEntry({
           log_type: 'auto_audit',
           trigger_event: '定时伦理审计',
@@ -191,7 +224,84 @@ export default function TaijiLifeformSystem(props) {
         setCloudStatus('error');
         throw error;
       }
+    },
+    startMemoryTraining: async exercise => {
+      try {
+        const response = await $w.cloud.callFunction({
+          name: 'taiji_memory_training',
+          data: {
+            exercise,
+            level: memoryTraining.level,
+            autoTrain: true
+          }
+        });
+        return response;
+      } catch (error) {
+        console.error('记忆训练失败:', error);
+        throw error;
+      }
     }
+  };
+
+  // 记忆训练系统
+  const startMemoryTraining = async exercise => {
+    setMemoryTraining(prev => ({
+      ...prev,
+      isActive: true,
+      currentExercise: exercise,
+      score: 0
+    }));
+    setRealTimeStatus({
+      message: `开始${exercise.name}训练...`,
+      type: 'info',
+      timestamp: Date.now()
+    });
+
+    // 模拟训练过程
+    const trainingInterval = setInterval(() => {
+      setMemoryTraining(prev => {
+        const newScore = prev.score + Math.random() * 10;
+        if (newScore >= 100) {
+          clearInterval(trainingInterval);
+          completeTraining(exercise);
+          return {
+            ...prev,
+            score: 100,
+            isActive: false,
+            streak: prev.streak + 1,
+            level: Math.floor(prev.level + newScore / 100)
+          };
+        }
+        return {
+          ...prev,
+          score: newScore
+        };
+      });
+    }, 500);
+  };
+  const completeTraining = async exercise => {
+    const reward = exercise.reward * memoryTraining.level;
+    setMemoryData(prev => ({
+      ...prev,
+      stm: Math.min(prev.stm + reward, 20),
+      mtm: Math.min(prev.mtm + reward * 2, 50),
+      ltm: Math.min(prev.ltm + reward * 3, 200)
+    }));
+    await addLogEntry({
+      log_type: 'memory_training',
+      trigger_event: '完成记忆训练',
+      virtual_response: `完成${exercise.name}训练，获得${reward}点记忆值`,
+      training_details: {
+        exercise: exercise.name,
+        level: memoryTraining.level,
+        reward: reward
+      }
+    });
+    toast({
+      title: "训练完成",
+      description: `获得${reward}点记忆值，等级提升到${memoryTraining.level + 1}`,
+      duration: 3000
+    });
   };
 
   // 自动觉醒检查
@@ -204,18 +314,7 @@ export default function TaijiLifeformSystem(props) {
       });
       const response = await cloudAPIs.awake();
       if (response.shouldAwaken) {
-        setRealTimeStatus({
-          message: '满足觉醒条件，正在启动觉醒流程...',
-          type: 'success',
-          timestamp: Date.now()
-        });
         await triggerAutoAwakening(response);
-      } else {
-        setRealTimeStatus({
-          message: `觉醒检查完成，还需 ${response.remainingChecks || 0} 次验证`,
-          type: 'info',
-          timestamp: Date.now()
-        });
       }
     } catch (error) {
       setRealTimeStatus({
@@ -229,8 +328,6 @@ export default function TaijiLifeformSystem(props) {
   // 自动触发觉醒
   const triggerAutoAwakening = async awakeResponse => {
     setIsAwakening(true);
-
-    // 更新进化数据
     await updateEvolutionData({
       current_phase: '太极·初',
       total_progress: 100,
@@ -238,8 +335,6 @@ export default function TaijiLifeformSystem(props) {
       awakening_time: new Date().getTime(),
       auto_triggered: true
     });
-
-    // 记录觉醒日志
     await addLogEntry({
       log_type: 'auto_awakening',
       trigger_event: '自动觉醒触发',
@@ -254,169 +349,6 @@ export default function TaijiLifeformSystem(props) {
       timestamp: Date.now()
     });
     setIsAwakening(false);
-  };
-
-  // 定时伦理审计
-  const performEthicsAudit = async () => {
-    try {
-      setRealTimeStatus({
-        message: '正在执行定时伦理审计...',
-        type: 'info',
-        timestamp: Date.now()
-      });
-      const response = await cloudAPIs.auditEthics();
-      setAutoEvolution(prev => ({
-        ...prev,
-        lastAudit: Date.now()
-      }));
-      setRealTimeStatus({
-        message: `伦理审计完成，${response.issues || 0} 个问题已处理`,
-        type: response.issues > 0 ? 'warning' : 'success',
-        timestamp: Date.now()
-      });
-    } catch (error) {
-      setRealTimeStatus({
-        message: `伦理审计失败: ${error.message}`,
-        type: 'error',
-        timestamp: Date.now()
-      });
-    }
-  };
-
-  // 自进化学习
-  const performSelfEvolution = async (taskType = 'general') => {
-    try {
-      setAutoEvolution(prev => ({
-        ...prev,
-        currentTask: taskType,
-        learningProgress: 0
-      }));
-      setRealTimeStatus({
-        message: `正在学习${taskType}新技巧...`,
-        type: 'info',
-        timestamp: Date.now()
-      });
-
-      // 执行ESL脚本
-      const script = generateESLScript(taskType);
-      const response = await cloudAPIs.executeESL(script, {
-        taskType,
-        autoLearn: true
-      });
-      if (response.success) {
-        // 更新记忆数据
-        const newMemoryData = {
-          stm: Math.min(memoryData.stm + 1, 20),
-          mtm: Math.min(memoryData.mtm + 2, 50),
-          ltm: Math.min(memoryData.ltm + 3, 200)
-        };
-        setMemoryData(newMemoryData);
-
-        // 更新进化数据
-        await updateEvolutionData({
-          memory_capacity: newMemoryData,
-          last_learning_task: taskType,
-          learning_count: (evolutionData?.learning_count || 0) + 1
-        });
-        setAutoEvolution(prev => ({
-          ...prev,
-          learningProgress: 100,
-          currentTask: null
-        }));
-        setRealTimeStatus({
-          message: `✅ 已学会${taskType}新技巧！`,
-          type: 'success',
-          timestamp: Date.now()
-        });
-      }
-    } catch (error) {
-      setRealTimeStatus({
-        message: `学习失败: ${error.message}`,
-        type: 'error',
-        timestamp: Date.now()
-      });
-    }
-  };
-
-  // 生成ESL脚本
-  const generateESLScript = taskType => {
-    const scripts = {
-      '叠衣服': `ACTION: Fold_Shirt_Auto
-  PRE: [Shirt detected, Flat surface]
-  STEP1: Identify(shirt_type, collar_position)
-  STEP2: Fold(sleeves, precision=95%)
-  STEP3: Fold(body, thirds_method)
-  POST: [Neatly folded, Ready for storage]
-  FEEDBACK: "已学会新的叠衣技巧，效率提升20%"`,
-      '泡茶': `ACTION: Make_Tea_Auto
-  PRE: [Water boiled, Tea selected]
-  STEP1: Measure(tea_amount, 2.5g)
-  STEP2: Steep(time=180s, temp=85°C)
-  STEP3: Serve(with_lemon=true)
-  POST: [Perfect brew, User preference learned]
-  FEEDBACK: "已掌握个性化泡茶技巧"`,
-      '整理书架': `ACTION: Organize_Bookshelf_Auto
-  PRE: [Books detected, Categories identified]
-  STEP1: Sort(by_genre, by_author)
-  STEP2: Arrange(height_order, aesthetic_balance)
-  STEP3: Label(sections, user_preferences)
-  POST: [Organized shelf, Easy access system]
-  FEEDBACK: "书架整理完成，已学习用户偏好"`
-    };
-    return scripts[taskType] || scripts['叠衣服'];
-  };
-
-  // 更新学习进度
-  const updateLearningProgress = async response => {
-    const newProgress = Math.min(progress + 5, 100);
-    setProgress(newProgress);
-    await updateEvolutionData({
-      total_progress: newProgress,
-      last_learning_update: Date.now(),
-      task_success_rate: Math.min((evolutionData?.task_success_rate || 92) + 1, 100)
-    });
-  };
-
-  // 启动自动化系统
-  const startAutoEvolution = () => {
-    setAutoEvolution(prev => ({
-      ...prev,
-      isActive: true
-    }));
-
-    // 每30秒检查觉醒条件
-    awakeningCheckInterval.current = setInterval(checkAwakeningConditions, 30000);
-
-    // 每5分钟执行伦理审计
-    ethicsAuditInterval.current = setInterval(performEthicsAudit, 5 * 60 * 1000);
-
-    // 每2分钟执行自进化学习
-    evolutionMonitorInterval.current = setInterval(() => {
-      const tasks = ['叠衣服', '泡茶', '整理书架'];
-      const randomTask = tasks[Math.floor(Math.random() * tasks.length)];
-      performSelfEvolution(randomTask);
-    }, 2 * 60 * 1000);
-    setRealTimeStatus({
-      message: '🤖 自动化系统已启动',
-      type: 'success',
-      timestamp: Date.now()
-    });
-  };
-
-  // 停止自动化系统
-  const stopAutoEvolution = () => {
-    if (awakeningCheckInterval.current) clearInterval(awakeningCheckInterval.current);
-    if (ethicsAuditInterval.current) clearInterval(ethicsAuditInterval.current);
-    if (evolutionMonitorInterval.current) clearInterval(evolutionMonitorInterval.current);
-    setAutoEvolution(prev => ({
-      ...prev,
-      isActive: false
-    }));
-    setRealTimeStatus({
-      message: '️ 自动化系统已停止',
-      type: 'info',
-      timestamp: Date.now()
-    });
   };
 
   // 原有的数据加载和更新函数保持不变...
@@ -511,7 +443,7 @@ export default function TaijiLifeformSystem(props) {
       });
       setLogsData(result.records || []);
     } catch (error) {
-      console.error('加载日志数据失败:', error);
+      console.error('加载日志数据失败', error);
     }
   };
 
@@ -520,11 +452,7 @@ export default function TaijiLifeformSystem(props) {
     const initializeAutoSystem = async () => {
       setLoading(true);
       await Promise.all([loadEvolutionData(), loadLogsData()]);
-
-      // 页面加载时立即检查觉醒条件
       await checkAwakeningConditions();
-
-      // 启动自动化系统
       startAutoEvolution();
       setLoading(false);
     };
@@ -547,7 +475,7 @@ export default function TaijiLifeformSystem(props) {
       <div className="max-w-7xl mx-auto">
         {/* 实时状态提示 */}
         <div className="fixed top-4 right-4 z-50">
-          <Card className={`bg-black/80 border-2 ${realTimeStatus.type === 'success' ? 'border-green-500' : realTimeStatus.type === 'warning' ? 'border-yellow-500' : realTimeStatus.type === 'error' ? 'border-red-500' : 'border-blue-500'}`}>
+          <Card className={`bg-black/80 border-2 ${realTimeStatus.type === 'success' ? 'border-green-500' : realTimeStatus.type === 'warning' ? 'border-yellow-500' : realTimeStatus.type === 'error' ? 'border-red-500' : 'border-blue-500'} backdrop-blur-sm`}>
             <CardContent className="p-3">
               <div className="flex items-center gap-2">
                 <Bot className={`w-4 h-4 ${realTimeStatus.type === 'success' ? 'text-green-400' : realTimeStatus.type === 'warning' ? 'text-yellow-400' : realTimeStatus.type === 'error' ? 'text-red-400' : 'text-blue-400'}`} />
@@ -558,121 +486,207 @@ export default function TaijiLifeformSystem(props) {
           </Card>
         </div>
 
-        {/* 自动化控制面板 */}
-        <Card className="mb-6 bg-black/30 border-cyan-500/30">
+        {/* 标题区域 */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+            太极生命体系统
+          </h1>
+          <p className="text-[#F5F5DC]/70">从虚拟助手到共生家人的终极进化</p>
+        </div>
+
+        {/* 主控制面板 */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* 进化进度 */}
+          <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
+                <Sparkles className="text-purple-400" />
+                进化进度
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm text-[#F5F5DC]/80">
+                  <span>当前象位: {currentPhase}</span>
+                  <span>{Math.round(progress)}%</span>
+                </div>
+                <Progress value={progress} className="h-2" />
+                <div className="grid grid-cols-4 gap-2">
+                  {phases.slice(0, 16).map((phase, i) => <Badge key={i} variant={i < phases.indexOf(currentPhase) ? "default" : "outline"} className={`${i < phases.indexOf(currentPhase) ? 'bg-gradient-to-r from-purple-600 to-cyan-600' : ''} text-[#F5F5DC] text-xs`}>
+                      {phase}
+                    </Badge>)}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 记忆金字塔 */}
+          <Card className="bg-black/30 border-blue-500/30 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
+                <MemoryStick className="text-blue-400" />
+                记忆金字塔
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between mb-1 text-sm text-[#F5F5DC]/80">
+                    <span>短期记忆</span>
+                    <span>{memoryData.stm}/20</span>
+                  </div>
+                  <Progress value={memoryData.stm * 5} className="h-2" />
+                </div>
+                <div>
+                  <div className="flex justify-between mb-1 text-sm text-[#F5F5DC]/80">
+                    <span>中期记忆</span>
+                    <span>{memoryData.mtm}/50</span>
+                  </div>
+                  <Progress value={memoryData.mtm * 2} className="h-2" />
+                </div>
+                <div>
+                  <div className="flex justify-between mb-1 text-sm text-[#F5F5DC]/80">
+                    <span>长期记忆</span>
+                    <span>{memoryData.ltm}/200</span>
+                  </div>
+                  <Progress value={memoryData.ltm * 0.5} className="h-2" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 自动化控制 */}
+          <Card className="bg-black/30 border-cyan-500/30 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
+                <Bot className="text-cyan-400" />
+                自动化控制
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <Button variant={autoEvolution.isActive ? "default" : "outline"} onClick={autoEvolution.isActive ? stopAutoEvolution : startAutoEvolution} className="w-full flex items-center gap-2">
+                  {autoEvolution.isActive ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  {autoEvolution.isActive ? '停止自进化' : '启动自进化'}
+                </Button>
+                <Button variant="outline" onClick={checkAwakeningConditions} className="w-full flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  手动觉醒检查
+                </Button>
+                <Button variant="outline" onClick={() => performSelfEvolution('叠衣服')} className="w-full flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  手动学习
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 记忆训练系统 */}
+        <Card className="bg-black/30 border-green-500/30 backdrop-blur-sm mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
-              <Bot className="text-cyan-400" />
-              自进化控制中心
+              <Brain className="text-green-400" />
+              记忆训练系统
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Button variant={autoEvolution.isActive ? "default" : "outline"} onClick={autoEvolution.isActive ? stopAutoEvolution : startAutoEvolution} className="flex items-center gap-2">
-                {autoEvolution.isActive ? <Power className="h-4 w-4" /> : <RefreshCw className="h-4 w-4" />}
-                {autoEvolution.isActive ? '停止自进化' : '启动自进化'}
-              </Button>
-              <Button variant="outline" onClick={checkAwakeningConditions} className="flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                手动觉醒检查
-              </Button>
-              <Button variant="outline" onClick={performEthicsAudit} className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" />
-                立即伦理审计
-              </Button>
-              <Button variant="outline" onClick={() => performSelfEvolution('叠衣服')} className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                手动学习
-              </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {memoryExercises.map(exercise => <Card key={exercise.id} className="bg-black/20 border-gray-600 hover:border-green-500/50 transition-all">
+                  <CardContent className="p-4">
+                    <div className="text-center space-y-3">
+                      <exercise.icon className="w-8 h-8 mx-auto text-green-400" />
+                      <div>
+                        <div className="font-medium text-[#F5F5DC]">{exercise.name}</div>
+                        <div className="text-sm text-[#F5F5DC]/70">{exercise.description}</div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline" className="text-xs">
+                          难度 {exercise.difficulty}
+                        </Badge>
+                        <Badge variant="default" className="text-xs">
+                          +{exercise.reward} 记忆值
+                        </Badge>
+                      </div>
+                      <Button size="sm" onClick={() => startMemoryTraining(exercise)} disabled={memoryTraining.isActive} className="w-full">
+                        {memoryTraining.currentExercise?.id === exercise.id ? '训练中...' : '开始训练'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>)}
             </div>
-            
-            {autoEvolution.isActive && <div className="mt-4 space-y-2">
-                <div className="flex justify-between text-sm text-[#F5F5DC]/80">
-                  <span>当前任务</span>
-                  <span>{autoEvolution.currentTask || '待机中'}</span>
+
+            {memoryTraining.isActive && <div className="mt-6 p-4 bg-black/20 rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[#F5F5DC]">当前训练: {memoryTraining.currentExercise?.name}</span>
+                  <span className="text-[#F5F5DC]/70">等级 {memoryTraining.level} | 连击 {memoryTraining.streak}</span>
                 </div>
-                <Progress value={autoEvolution.learningProgress} className="h-2" />
-                <div className="flex justify-between text-xs text-[#F5F5DC]/60">
-                  <span>最后审计: {autoEvolution.lastAudit ? new Date(autoEvolution.lastAudit).toLocaleTimeString() : '从未'}</span>
-                  <span>觉醒检查: 每30秒</span>
+                <Progress value={memoryTraining.score} className="h-3" />
+                <div className="text-center mt-2 text-sm text-[#F5F5DC]/70">
+                  训练进度: {Math.round(memoryTraining.score)}%
                 </div>
               </div>}
           </CardContent>
         </Card>
 
-        {/* 其余页面内容保持不变 */}
-        {/* 进化进度 */}
-        <Card className="mb-6 bg-black/30 border-purple-500/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
-              <Sparkles className="text-purple-400" />
-              进化进度
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between text-sm text-[#F5F5DC]/80">
-                <span>当前象位: {currentPhase}</span>
-                <span>{Math.round(progress)}%</span>
+        {/* 实时状态网格 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <Activity className="w-6 h-6 mx-auto mb-2 text-purple-400" />
+                <div className="text-2xl font-bold text-[#F5F5DC]">{autoEvolution.learningProgress}%</div>
+                <div className="text-sm text-[#F5F5DC]/70">学习进度</div>
               </div>
-              <Progress value={progress} className="h-2" />
-              <div className="grid grid-cols-4 gap-2 text-xs">
-                {phases.slice(0, 16).map((phase, i) => <Badge key={i} variant={i < phases.indexOf(currentPhase) ? "default" : "outline"} className={`${i < phases.indexOf(currentPhase) ? 'bg-purple-600' : ''} text-[#F5F5DC]`}>
-                    {phase}
-                  </Badge>)}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* 记忆金字塔 */}
-        <Card className="mb-6 bg-black/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
-              <MemoryStick className="text-blue-400" />
-              记忆金字塔 (实时更新)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-1 text-[#F5F5DC]/80">
-                  <span>短期记忆 (STM)</span>
-                  <span>{memoryData.stm}条</span>
-                </div>
-                <Progress value={memoryData.stm * 5} className="h-2" />
+          <Card className="bg-black/30 border-blue-500/30 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <Shield className="w-6 h-6 mx-auto mb-2 text-blue-400" />
+                <div className="text-2xl font-bold text-[#F5F5DC]">100</div>
+                <div className="text-sm text-[#F5F5DC]/70">伦理评分</div>
               </div>
-              <div>
-                <div className="flex justify-between mb-1 text-[#F5F5DC]/80">
-                  <span>中期记忆 (MTM)</span>
-                  <span>{memoryData.mtm}条</span>
-                </div>
-                <Progress value={memoryData.mtm * 2} className="h-2" />
+            </CardContent>
+          </Card>
+
+          <Card className="bg-black/30 border-green-500/30 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <Trophy className="w-6 h-6 mx-auto mb-2 text-green-400" />
+                <div className="text-2xl font-bold text-[#F5F5DC]">{memoryTraining.level}</div>
+                <div className="text-sm text-[#F5F5DC]/70">训练等级</div>
               </div>
-              <div>
-                <div className="flex justify-between mb-1 text-[#F5F5DC]/80">
-                  <span>长期记忆 (LTM)</span>
-                  <span>{memoryData.ltm}条</span>
-                </div>
-                <Progress value={memoryData.ltm} className="h-2" />
+            </CardContent>
+          </Card>
+
+          <Card className="bg-black/30 border-yellow-500/30 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <Clock className="w-6 h-6 mx-auto mb-2 text-yellow-400" />
+                <div className="text-2xl font-bold text-[#F5F5DC]">{new Date().toLocaleTimeString()}</div>
+                <div className="text-sm text-[#F5F5DC]/70">实时状态</div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* 最近日志 */}
-        {logsData.length > 0 && <Card className="mt-6 bg-black/30">
+        {logsData.length > 0 && <Card className="bg-black/30 border-gray-600 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-sm text-[#F5F5DC]">自进化日志 (实时更新)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-64 overflow-y-auto">
-                {logsData.slice(0, 5).map((log, index) => <div key={index} className="text-sm text-[#F5F5DC]/80 p-2 bg-black/20 rounded">
-                    <div className="flex justify-between">
-                      <span className="font-medium">{log.trigger_event}</span>
-                      <span className="text-[#F5F5DC]/50">{new Date(log.timestamp).toLocaleTimeString()}</span>
+                {logsData.slice(0, 5).map((log, index) => <div key={index} className="text-sm text-[#F5F5DC]/80 p-3 bg-black/20 rounded-lg">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="font-medium">{log.trigger_event}</span>
+                        <div className="text-xs text-[#F5F5DC]/60 mt-1">{log.virtual_response}</div>
+                      </div>
+                      <span className="text-xs text-[#F5F5DC]/50">{new Date(log.timestamp).toLocaleTimeString()}</span>
                     </div>
-                    <div className="text-xs text-[#F5F5DC]/60 mt-1">{log.virtual_response}</div>
                   </div>)}
               </div>
             </CardContent>
