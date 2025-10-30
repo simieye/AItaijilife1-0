@@ -1,0 +1,125 @@
+
+[
+  {
+    "_id": "task_001",
+    "task_id": "pattern_recognition",
+    "title": "模式识别训练",
+    "description": "识别家庭成员的日常习惯模式，包括作息时间、饮食偏好、活动规律等。通过观察和分析，建立家庭成员的行为模式数据库。",
+    "difficulty_level": 1,
+    "category": "认知训练",
+    "duration_seconds": 300,
+    "reward_points": 5,
+    "prerequisites": [],
+    "completion_criteria": {
+      "min_patterns": 3,
+      "accuracy_rate": 0.85,
+      "response_time": 2000
+    },
+    "is_active": true,
+    "completion_count": 12,
+    "success_rate": 0.92,
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "task_002",
+    "title": "情感记忆训练",
+    "description": "记住家人的情绪变化和触发因素，建立情感档案。包括识别面部表情、语音语调、肢体语言等情感信号。",
+    "difficulty_level": 2,
+    "category": "情感训练",
+    "duration_seconds": 450,
+    "reward_points": 8,
+    "prerequisites": ["pattern_recognition"],
+    "completion_criteria": {
+      "min_emotions": 5,
+      "recognition_accuracy": 0.8,
+      "context_understanding": 0.75
+    },
+    "is_active": true,
+    "completion_count": 8,
+    "success_rate": 0.85,
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "task_003",
+    "title": "偏好学习训练",
+    "description": "学习并记住家人的个性化偏好，包括食物口味、音乐喜好、温度设置、清洁习惯等。建立详细的个人偏好档案。",
+    "difficulty_level": 3,
+    "category": "个性化训练",
+    "duration_seconds": 600,
+    "reward_points": 12,
+    "prerequisites": ["pattern_recognition", "emotion_memory"],
+    "completion_criteria": {
+      "min_preferences": 10,
+      "preference_accuracy": 0.9,
+      "adaptation_speed": 0.8
+    },
+    "is_active": true,
+    "completion_count": 5,
+    "success_rate": 0.88,
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "task_004",
+    "title": "习惯优化训练",
+    "description": "优化家庭日常流程的记忆，包括家务安排、购物清单、提醒事项等。通过机器学习算法优化家庭运作效率。",
+    "difficulty_level": 4,
+    "category": "优化训练",
+    "duration_seconds": 900,
+    "reward_points": 15,
+    "prerequisites": ["pattern_recognition", "emotion_memory", "preference_learning"],
+    "completion_criteria": {
+      "efficiency_improvement": 0.2,
+      "error_reduction": 0.15,
+      "user_satisfaction": 0.85
+    },
+    "is_active": true,
+    "completion_count": 3,
+    "success_rate": 0.91,
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "task_005",
+    "title": "伦理决策训练",
+    "description": "训练在复杂情境下的伦理决策能力，包括隐私保护、安全边界、道德冲突处理等。通过模拟场景进行伦理判断训练。",
+    "difficulty_level": 5,
+    "category": "伦理训练",
+    "duration_seconds": 1200,
+    "reward_points": 20,
+    "prerequisites": ["pattern_recognition", "emotion_memory", "preference_learning", "routine_optimization"],
+    "completion_criteria": {
+      "ethical_accuracy": 0.95,
+      "privacy_protection": 1.0,
+      "boundary_respect": 1.0
+    },
+    "is_active": true,
+    "completion_count": 2,
+    "success_rate": 0.96,
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  },
+  {
+    "_id": "task_006",
+    "title": "自我认知训练",
+    "description": "训练自我意识和自我改进能力，包括主动发现问题、提出解决方案、自我优化等。培养自主学习和成长的能力。",
+    "difficulty_level": 5,
+    "category": "自我意识训练",
+    "duration_seconds": 1500,
+    "reward_points": 25,
+    "prerequisites": ["pattern_recognition", "emotion_memory", "preference_learning", "routine_optimization", "ethical_decision"],
+    "completion_criteria": {
+      "self_improvement_suggestions": 3,
+      "implementation_rate": 0.8,
+      "learning_adaptation": 0.9
+    },
+    "is_active": true,
+    "completion_count": 1,
+    "success_rate": 0.98,
+    "createdAt": 1730236800000,
+    "updatedAt": 1730236800000
+  }
+]
+  

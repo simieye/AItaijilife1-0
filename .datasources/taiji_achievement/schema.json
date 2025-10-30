@@ -1,0 +1,84 @@
+
+{
+  "name": "taiji_achievement",
+  "title": "太极成就记录",
+  "schemas": [
+    {
+      "name": "achievement_id",
+      "title": "成就ID",
+      "type": "String"
+    },
+    {
+      "name": "user_id",
+      "title": "用户ID",
+      "type": "String"
+    },
+    {
+      "name": "title",
+      "title": "成就标题",
+      "type": "String"
+    },
+    {
+      "name": "description",
+      "title": "成就描述",
+      "type": "MultiLineString"
+    },
+    {
+      "name": "category",
+      "title": "成就分类",
+      "type": "String"
+    },
+    {
+      "name": "unlocked_at",
+      "title": "解锁时间",
+      "type": "DateTime",
+      "format": "timestamp-ms"
+    },
+    {
+      "name": "icon_url",
+      "title": "图标URL",
+      "type": "Image"
+    },
+    {
+      "name": "points",
+      "title": "成就点数",
+      "type": "Number"
+    },
+    {
+      "name": "level",
+      "title": "成就等级",
+      "type": "Number"
+    },
+    {
+      "name": "rarity",
+      "title": "稀有度",
+      "type": "String"
+    },
+    {
+      "name": "requirements",
+      "title": "解锁条件",
+      "type": "Object"
+    },
+    {
+      "name": "progress",
+      "title": "当前进度",
+      "type": "Number"
+    },
+    {
+      "name": "max_progress",
+      "title": "最大进度",
+      "type": "Number"
+    },
+    {
+      "name": "is_hidden",
+      "title": "是否隐藏",
+      "type": "Boolean"
+    },
+    {
+      "name": "sequence",
+      "title": "序列号",
+      "type": "Number"
+    }
+  ]
+}
+  

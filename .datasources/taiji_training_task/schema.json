@@ -1,0 +1,71 @@
+
+{
+  "name": "taiji_training_task",
+  "title": "太极训练任务",
+  "schemas": [
+    {
+      "name": "task_id",
+      "title": "任务ID",
+      "type": "String"
+    },
+    {
+      "name": "title",
+      "title": "任务标题",
+      "type": "String"
+    },
+    {
+      "name": "description",
+      "title": "任务描述",
+      "type": "MultiLineString"
+    },
+    {
+      "name": "difficulty_level",
+      "title": "难度等级",
+      "type": "Number"
+    },
+    {
+      "name": "category",
+      "title": "任务分类",
+      "type": "String"
+    },
+    {
+      "name": "duration_seconds",
+      "title": "持续时间(秒)",
+      "type": "Number"
+    },
+    {
+      "name": "reward_points",
+      "title": "奖励点数",
+      "type": "Number"
+    },
+    {
+      "name": "prerequisites",
+      "title": "前置条件",
+      "type": "Array",
+      "items": {
+        "type": "String"
+      }
+    },
+    {
+      "name": "completion_criteria",
+      "title": "完成标准",
+      "type": "Object"
+    },
+    {
+      "name": "is_active",
+      "title": "是否激活",
+      "type": "Boolean"
+    },
+    {
+      "name": "completion_count",
+      "title": "完成次数",
+      "type": "Number"
+    },
+    {
+      "name": "success_rate",
+      "title": "成功率",
+      "type": "Number"
+    }
+  ]
+}
+  

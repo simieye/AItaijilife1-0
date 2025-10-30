@@ -1,0 +1,85 @@
+
+{
+  "name": "taiji_user_progress",
+  "title": "太极用户进度",
+  "schemas": [
+    {
+      "name": "progress_id",
+      "title": "进度ID",
+      "type": "String"
+    },
+    {
+      "name": "user_id",
+      "title": "用户ID",
+      "type": "String"
+    },
+    {
+      "name": "task_id",
+      "title": "任务ID",
+      "type": "String"
+    },
+    {
+      "name": "status",
+      "title": "状态",
+      "type": "String"
+    },
+    {
+      "name": "score",
+      "title": "得分",
+      "type": "Number"
+    },
+    {
+      "name": "started_at",
+      "title": "开始时间",
+      "type": "DateTime",
+      "format": "timestamp-ms"
+    },
+    {
+      "name": "completed_at",
+      "title": "完成时间",
+      "type": "DateTime",
+      "format": "timestamp-ms"
+    },
+    {
+      "name": "attempts",
+      "title": "尝试次数",
+      "type": "Number"
+    },
+    {
+      "name": "best_score",
+      "title": "最佳得分",
+      "type": "Number"
+    },
+    {
+      "name": "completion_rate",
+      "title": "完成率",
+      "type": "Number"
+    },
+    {
+      "name": "time_spent_seconds",
+      "title": "花费时间(秒)",
+      "type": "Number"
+    },
+    {
+      "name": "difficulty_adjusted",
+      "title": "难度调整",
+      "type": "Boolean"
+    },
+    {
+      "name": "hints_used",
+      "title": "使用提示",
+      "type": "Number"
+    },
+    {
+      "name": "accuracy_rate",
+      "title": "准确率",
+      "type": "Number"
+    },
+    {
+      "name": "streak_count",
+      "title": "连续完成次数",
+      "type": "Number"
+    }
+  ]
+}
+  
