@@ -427,7 +427,7 @@ export default function UserSettings(props) {
               <Bell className="w-4 h-4" />
               通知设置
             </button>
-            <button onClick={() => setActiveTab('training')} className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${activeTab === 'training' ? 'bg-purple-600/20 text-purple-400 border-b-2 border-purple-400' : 'text-[#F5F5DC]/70 hover:text-[#F5F5DC]'}>
+            <button onClick={() => setActiveTab('training')} className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${activeTab === 'training' ? 'bg-purple-600/20 text-purple-400 border-b-2 border-purple-400' : 'text-[#F5F5DC]/70 hover:text-[#F5F5DC]'}`}>
               <Brain className="w-4 h-4" />
               训练设置
             </button>
@@ -885,3 +885,4 @@ export default function UserSettings(props) {
       </div>
     </div>;
 }
+  
