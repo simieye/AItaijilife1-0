@@ -1,4 +1,3 @@
-
 // @ts-ignore;
 import React, { useState, useEffect } from 'react';
 // @ts-ignore;
@@ -24,12 +23,16 @@ export default function UserSettings(props) {
   const [userSettings, setUserSettings] = useState({
     // 主题设置
     theme: {
-      mode: 'warm', // warm, cool, dark, auto
+      mode: 'warm',
+      // warm, cool, dark, auto
       primaryColor: '#8B5CF6',
       accentColor: '#06B6D4',
-      fontSize: 'medium', // small, medium, large
-      fontFamily: 'system', // system, serif, mono
-      borderRadius: 'medium', // small, medium, large, none
+      fontSize: 'medium',
+      // small, medium, large
+      fontFamily: 'system',
+      // system, serif, mono
+      borderRadius: 'medium',
+      // small, medium, large, none
       animations: true,
       glassEffect: true,
       gradientBackground: true
@@ -47,7 +50,8 @@ export default function UserSettings(props) {
         ethics: true,
         system: true
       },
-      frequency: 'important', // all, important, none
+      frequency: 'important',
+      // all, important, none
       quietHours: {
         enabled: false,
         start: '22:00',
@@ -58,21 +62,26 @@ export default function UserSettings(props) {
     // 训练设置
     training: {
       autoStart: false,
-      difficulty: 'adaptive', // easy, medium, hard, adaptive
+      difficulty: 'adaptive',
+      // easy, medium, hard, adaptive
       reminderEnabled: true,
       reminderTime: '19:00',
       dailyGoal: 3,
-      maxDailyTime: 60, // minutes
+      maxDailyTime: 60,
+      // minutes
       breakReminder: true,
-      breakInterval: 30, // minutes
+      breakInterval: 30,
+      // minutes
       showProgress: true,
       showStats: true,
       autoSave: true
     },
     // 界面设置
     interface: {
-      layout: 'grid', // grid, list, compact
-      density: 'comfortable', // compact, comfortable, spacious
+      layout: 'grid',
+      // grid, list, compact
+      density: 'comfortable',
+      // compact, comfortable, spacious
       sidebarCollapsed: false,
       showTooltips: true,
       showShortcuts: true,
@@ -140,7 +149,6 @@ export default function UserSettings(props) {
           pageNumber: 1
         }
       });
-
       if (result.records && result.records.length > 0) {
         const settings = result.records[0];
         setUserSettings({
@@ -182,7 +190,6 @@ export default function UserSettings(props) {
           pageNumber: 1
         }
       });
-
       if (existingResult.records && existingResult.records.length > 0) {
         // 更新现有设置
         await $w.cloud.callDataSource({
@@ -217,7 +224,6 @@ export default function UserSettings(props) {
           }
         });
       }
-
       setHasChanges(false);
       toast({
         title: "保存成功",
@@ -324,11 +330,11 @@ export default function UserSettings(props) {
   };
 
   // 导入配置
-  const importConfig = (event) => {
+  const importConfig = event => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         try {
           const configData = JSON.parse(e.target.result);
           if (configData.settings) {
@@ -363,7 +369,6 @@ export default function UserSettings(props) {
     }));
     setHasChanges(true);
   };
-
   const updateNestedSetting = (category, nestedKey, key, value) => {
     setUserSettings(prev => ({
       ...prev,
@@ -382,7 +387,6 @@ export default function UserSettings(props) {
   useEffect(() => {
     loadUserSettings();
   }, []);
-
   return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-[#F5F5DC] p-4">
       <div className="max-w-6xl mx-auto">
         {/* 标题区域 */}
@@ -427,11 +431,11 @@ export default function UserSettings(props) {
               <Bell className="w-4 h-4" />
               通知设置
             </button>
-            <button onClick={() => setActiveTab('training')} className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${activeTab === 'training' ? 'bg-purple-600/20 text-purple-400 border-b-2 border-purple-400' : 'text-[#F5F5DC]/70 hover:text-[#F5F5DC]'}>
+            <button onClick={() => setActiveTab('training')} className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${activeTab === 'training' ? 'bg-purple-600/20 text-purple-400 border-b-2 border-purple-400' : 'text-[#F5F5DC]/70 hover:text-[#F5F5DC]'}`}>
               <Brain className="w-4 h-4" />
               训练设置
             </button>
-            <button onClick={() => setActiveTab('interface')} className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${activeTab === 'interface' ? 'bg-purple-600/20 text-purple-400 border-b-2 border-purple-400' : 'text-[#F5F5DC]/70 hover:text-[#F5F5DC]'}>
+            <button onClick={() => setActiveTab('interface')} className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${activeTab === 'interface' ? 'bg-purple-600/20 text-purple-400 border-b-2 border-purple-400' : 'text-[#F5F5DC]/70 hover:text-[#F5F5DC]'}`}>
               <Layout className="w-4 h-4" />
               界面设置
             </button>
@@ -444,18 +448,18 @@ export default function UserSettings(props) {
                   <h3 className="text-lg font-medium text-[#F5F5DC] mb-4">主题模式</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {Object.entries(themePresets).map(([key, preset]) => {
-                      const Icon = preset.icon;
-                      return <Card key={key} className={`bg-black/20 border-2 cursor-pointer transition-all ${userSettings.theme.mode === key ? 'border-purple-500/50' : 'border-gray-600 hover:border-purple-500/30'}`} onClick={() => updateSetting('theme', 'mode', key)}>
-                        <CardContent className="p-4">
-                          <div className="text-center space-y-2">
-                            <Icon className={`w-8 h-8 mx-auto ${userSettings.theme.mode === key ? 'text-purple-400' : 'text-[#F5F5DC]/60'}`} />
-                            <div className="font-medium text-[#F5F5DC]">{preset.name}</div>
-                            <div className="text-xs text-[#F5F5DC]/60">{preset.description}</div>
-                            {userSettings.theme.mode === key && <Check className="w-4 h-4 mx-auto text-green-400" />}
-                          </div>
-                        </CardContent>
-                      </Card>;
-                    })}
+                  const Icon = preset.icon;
+                  return <Card key={key} className={`bg-black/20 border-2 cursor-pointer transition-all ${userSettings.theme.mode === key ? 'border-purple-500/50' : 'border-gray-600 hover:border-purple-500/30'}`} onClick={() => updateSetting('theme', 'mode', key)}>
+                          <CardContent className="p-4">
+                            <div className="text-center space-y-2">
+                              <Icon className={`w-8 h-8 mx-auto ${userSettings.theme.mode === key ? 'text-purple-400' : 'text-[#F5F5DC]/60'}`} />
+                              <div className="font-medium text-[#F5F5DC]">{preset.name}</div>
+                              <div className="text-xs text-[#F5F5DC]/60">{preset.description}</div>
+                              {userSettings.theme.mode === key && <Check className="w-4 h-4 mx-auto text-green-400" />}
+                            </div>
+                          </CardContent>
+                        </Card>;
+                })}
                   </div>
                 </div>
 
@@ -464,7 +468,7 @@ export default function UserSettings(props) {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">字体大小</label>
-                      <Select value={userSettings.theme.fontSize} onValueChange={(value) => updateSetting('theme', 'fontSize', value)}>
+                      <Select value={userSettings.theme.fontSize} onValueChange={value => updateSetting('theme', 'fontSize', value)}>
                         <SelectTrigger className="bg-black/20 border-gray-600">
                           <SelectValue />
                         </SelectTrigger>
@@ -477,7 +481,7 @@ export default function UserSettings(props) {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">字体类型</label>
-                      <Select value={userSettings.theme.fontFamily} onValueChange={(value) => updateSetting('theme', 'fontFamily', value)}>
+                      <Select value={userSettings.theme.fontFamily} onValueChange={value => updateSetting('theme', 'fontFamily', value)}>
                         <SelectTrigger className="bg-black/20 border-gray-600">
                           <SelectValue />
                         </SelectTrigger>
@@ -490,7 +494,7 @@ export default function UserSettings(props) {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">圆角大小</label>
-                      <Select value={userSettings.theme.borderRadius} onValueChange={(value) => updateSetting('theme', 'borderRadius', value)}>
+                      <Select value={userSettings.theme.borderRadius} onValueChange={value => updateSetting('theme', 'borderRadius', value)}>
                         <SelectTrigger className="bg-black/20 border-gray-600">
                           <SelectValue />
                         </SelectTrigger>
@@ -513,21 +517,21 @@ export default function UserSettings(props) {
                         <div className="font-medium text-[#F5F5DC]">启用动画</div>
                         <div className="text-sm text-[#F5F5DC]/60">界面过渡动画和微交互</div>
                       </div>
-                      <Switch checked={userSettings.theme.animations} onCheckedChange={(checked) => updateSetting('theme', 'animations', checked)} />
+                      <Switch checked={userSettings.theme.animations} onCheckedChange={checked => updateSetting('theme', 'animations', checked)} />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-[#F5F5DC]">毛玻璃效果</div>
                         <div className="text-sm text-[#F5F5DC]/60">卡片背景的模糊效果</div>
                       </div>
-                      <Switch checked={userSettings.theme.glassEffect} onCheckedChange={(checked) => updateSetting('theme', 'glassEffect', checked)} />
+                      <Switch checked={userSettings.theme.glassEffect} onCheckedChange={checked => updateSetting('theme', 'glassEffect', checked)} />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-[#F5F5DC]">渐变背景</div>
                         <div className="text-sm text-[#F5F5DC]/60">页面背景的渐变效果</div>
                       </div>
-                      <Switch checked={userSettings.theme.gradientBackground} onCheckedChange={(checked) => updateSetting('theme', 'gradientBackground', checked)} />
+                      <Switch checked={userSettings.theme.gradientBackground} onCheckedChange={checked => updateSetting('theme', 'gradientBackground', checked)} />
                     </div>
                   </div>
                 </div>
@@ -543,21 +547,21 @@ export default function UserSettings(props) {
                         <div className="font-medium text-[#F5F5DC]">启用通知</div>
                         <div className="text-sm text-[#F5F5DC]/60">接收系统通知</div>
                       </div>
-                      <Switch checked={userSettings.notifications.enabled} onCheckedChange={(checked) => updateSetting('notifications', 'enabled', checked)} />
+                      <Switch checked={userSettings.notifications.enabled} onCheckedChange={checked => updateSetting('notifications', 'enabled', checked)} />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-[#F5F5DC]">声音提醒</div>
                         <div className="text-sm text-[#F5F5DC]/60">通知时播放声音</div>
                       </div>
-                      <Switch checked={userSettings.notifications.sound} onCheckedChange={(checked) => updateSetting('notifications', 'sound', checked)} />
+                      <Switch checked={userSettings.notifications.sound} onCheckedChange={checked => updateSetting('notifications', 'sound', checked)} />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-[#F5F5DC]">桌面通知</div>
                         <div className="text-sm text-[#F5F5DC]/60">显示桌面通知</div>
                       </div>
-                      <Switch checked={userSettings.notifications.desktop} onCheckedChange={(checked) => updateSetting('notifications', 'desktop', checked)} />
+                      <Switch checked={userSettings.notifications.desktop} onCheckedChange={checked => updateSetting('notifications', 'desktop', checked)} />
                     </div>
                   </div>
                 </div>
@@ -570,14 +574,14 @@ export default function UserSettings(props) {
                           <div className="font-medium text-[#F5F5DC]">{key === 'training' ? '训练通知' : key === 'achievements' ? '成就通知' : key === 'evolution' ? '进化通知' : key === 'ethics' ? '伦理通知' : '系统通知'}</div>
                           <div className="text-sm text-[#F5F5DC]/60">接收{key === 'training' ? '训练相关' : key === 'achievements' ? '成就解锁' : key === 'evolution' ? '进化进度' : key === 'ethics' ? '伦理审计' : '系统'}通知</div>
                         </div>
-                        <Switch checked={value} onCheckedChange={(checked) => updateNestedSetting('notifications', 'types', key, checked)} />
+                        <Switch checked={value} onCheckedChange={checked => updateNestedSetting('notifications', 'types', key, checked)} />
                       </div>)}
                   </div>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-[#F5F5DC] mb-4">通知频率</h3>
-                  <Select value={userSettings.notifications.frequency} onValueChange={(value) => updateSetting('notifications', 'frequency', value)}>
+                  <Select value={userSettings.notifications.frequency} onValueChange={value => updateSetting('notifications', 'frequency', value)}>
                     <SelectTrigger className="bg-black/20 border-gray-600">
                       <SelectValue />
                     </SelectTrigger>
@@ -597,16 +601,16 @@ export default function UserSettings(props) {
                         <div className="font-medium text-[#F5F5DC]">启用免打扰</div>
                         <div className="text-sm text-[#F5F5DC]/60">在指定时间段内静音通知</div>
                       </div>
-                      <Switch checked={userSettings.notifications.quietHours.enabled} onCheckedChange={(checked) => updateNestedSetting('notifications', 'quietHours', 'enabled', checked)} />
+                      <Switch checked={userSettings.notifications.quietHours.enabled} onCheckedChange={checked => updateNestedSetting('notifications', 'quietHours', 'enabled', checked)} />
                     </div>
                     {userSettings.notifications.quietHours.enabled && <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">开始时间</label>
-                          <input type="time" value={userSettings.notifications.quietHours.start} onChange={(e) => updateNestedSetting('notifications', 'quietHours', 'start', e.target.value)} className="w-full px-3 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC]" />
+                          <input type="time" value={userSettings.notifications.quietHours.start} onChange={e => updateNestedSetting('notifications', 'quietHours', 'start', e.target.value)} className="w-full px-3 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC]" />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">结束时间</label>
-                          <input type="time" value={userSettings.notifications.quietHours.end} onChange={(e) => updateNestedSetting('notifications', 'quietHours', 'end', e.target.value)} className="w-full px-3 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC]" />
+                          <input type="time" value={userSettings.notifications.quietHours.end} onChange={e => updateNestedSetting('notifications', 'quietHours', 'end', e.target.value)} className="w-full px-3 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC]" />
                         </div>
                       </div>}
                   </div>
@@ -623,21 +627,21 @@ export default function UserSettings(props) {
                         <div className="font-medium text-[#F5F5DC]">自动开始训练</div>
                         <div className="text-sm text-[#F5F5DC]/60">到达预定时间自动开始训练</div>
                       </div>
-                      <Switch checked={userSettings.training.autoStart} onCheckedChange={(checked) => updateSetting('training', 'autoStart', checked)} />
+                      <Switch checked={userSettings.training.autoStart} onCheckedChange={checked => updateSetting('training', 'autoStart', checked)} />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-[#F5F5DC]">训练提醒</div>
                         <div className="text-sm text-[#F5F5DC]/60">在指定时间提醒训练</div>
                       </div>
-                      <Switch checked={userSettings.training.reminderEnabled} onCheckedChange={(checked) => updateSetting('training', 'reminderEnabled', checked)} />
+                      <Switch checked={userSettings.training.reminderEnabled} onCheckedChange={checked => updateSetting('training', 'reminderEnabled', checked)} />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-[#F5F5DC]">休息提醒</div>
                         <div className="text-sm text-[#F5F5DC]/60">长时间训练后提醒休息</div>
                       </div>
-                      <Switch checked={userSettings.training.breakReminder} onCheckedChange={(checked) => updateSetting('training', 'breakReminder', checked)} />
+                      <Switch checked={userSettings.training.breakReminder} onCheckedChange={checked => updateSetting('training', 'breakReminder', checked)} />
                     </div>
                   </div>
                 </div>
@@ -647,7 +651,7 @@ export default function UserSettings(props) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">难度设置</label>
-                      <Select value={userSettings.training.difficulty} onValueChange={(value) => updateSetting('training', 'difficulty', value)}>
+                      <Select value={userSettings.training.difficulty} onValueChange={value => updateSetting('training', 'difficulty', value)}>
                         <SelectTrigger className="bg-black/20 border-gray-600">
                           <SelectValue />
                         </SelectTrigger>
@@ -661,15 +665,15 @@ export default function UserSettings(props) {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">每日目标</label>
-                      <input type="number" min="1" max="10" value={userSettings.training.dailyGoal} onChange={(e) => updateSetting('training', 'dailyGoal', parseInt(e.target.value))} className="w-full px-3 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC]" />
+                      <input type="number" min="1" max="10" value={userSettings.training.dailyGoal} onChange={e => updateSetting('training', 'dailyGoal', parseInt(e.target.value))} className="w-full px-3 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC]" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">提醒时间</label>
-                      <input type="time" value={userSettings.training.reminderTime} onChange={(e) => updateSetting('training', 'reminderTime', e.target.value)} className="w-full px-3 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC]" />
+                      <input type="time" value={userSettings.training.reminderTime} onChange={e => updateSetting('training', 'reminderTime', e.target.value)} className="w-full px-3 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC]" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">最大训练时长(分钟)</label>
-                      <input type="number" min="10" max="180" value={userSettings.training.maxDailyTime} onChange={(e) => updateSetting('training', 'maxDailyTime', parseInt(e.target.value))} className="w-full px-3 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC]" />
+                      <input type="number" min="10" max="180" value={userSettings.training.maxDailyTime} onChange={e => updateSetting('training', 'maxDailyTime', parseInt(e.target.value))} className="w-full px-3 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC]" />
                     </div>
                   </div>
                 </div>
@@ -682,21 +686,21 @@ export default function UserSettings(props) {
                         <div className="font-medium text-[#F5F5DC]">显示进度</div>
                         <div className="text-sm text-[#F5F5DC]/60">训练时显示进度条</div>
                       </div>
-                      <Switch checked={userSettings.training.showProgress} onCheckedChange={(checked) => updateSetting('training', 'showProgress', checked)} />
+                      <Switch checked={userSettings.training.showProgress} onCheckedChange={checked => updateSetting('training', 'showProgress', checked)} />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-[#F5F5DC]">显示统计</div>
                         <div className="text-sm text-[#F5F5DC]/60">显示训练统计数据</div>
                       </div>
-                      <Switch checked={userSettings.training.showStats} onCheckedChange={(checked) => updateSetting('training', 'showStats', checked)} />
+                      <Switch checked={userSettings.training.showStats} onCheckedChange={checked => updateSetting('training', 'showStats', checked)} />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-[#F5F5DC]">自动保存</div>
                         <div className="text-sm text-[#F5F5DC]/60">自动保存训练进度</div>
                       </div>
-                      <Switch checked={userSettings.training.autoSave} onCheckedChange={(checked) => updateSetting('training', 'autoSave', checked)} />
+                      <Switch checked={userSettings.training.autoSave} onCheckedChange={checked => updateSetting('training', 'autoSave', checked)} />
                     </div>
                   </div>
                 </div>
@@ -709,7 +713,7 @@ export default function UserSettings(props) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">布局模式</label>
-                      <Select value={userSettings.interface.layout} onValueChange={(value) => updateSetting('interface', 'layout', value)}>
+                      <Select value={userSettings.interface.layout} onValueChange={value => updateSetting('interface', 'layout', value)}>
                         <SelectTrigger className="bg-black/20 border-gray-600">
                           <SelectValue />
                         </SelectTrigger>
@@ -722,7 +726,7 @@ export default function UserSettings(props) {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">显示密度</label>
-                      <Select value={userSettings.interface.density} onValueChange={(value) => updateSetting('interface', 'density', value)}>
+                      <Select value={userSettings.interface.density} onValueChange={value => updateSetting('interface', 'density', value)}>
                         <SelectTrigger className="bg-black/20 border-gray-600">
                           <SelectValue />
                         </SelectTrigger>
@@ -744,28 +748,28 @@ export default function UserSettings(props) {
                         <div className="font-medium text-[#F5F5DC]">显示工具提示</div>
                         <div className="text-sm text-[#F5F5DC]/60">鼠标悬停显示提示信息</div>
                       </div>
-                      <Switch checked={userSettings.interface.showTooltips} onCheckedChange={(checked) => updateSetting('interface', 'showTooltips', checked)} />
+                      <Switch checked={userSettings.interface.showTooltips} onCheckedChange={checked => updateSetting('interface', 'showTooltips', checked)} />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-[#F5F5DC]">显示快捷键</div>
                         <div className="text-sm text-[#F5F5DC]/60">显示键盘快捷键提示</div>
                       </div>
-                      <Switch checked={userSettings.interface.showShortcuts} onCheckedChange={(checked) => updateSetting('interface', 'showShortcuts', checked)} />
+                      <Switch checked={userSettings.interface.showShortcuts} onCheckedChange={checked => updateSetting('interface', 'showShortcuts', checked)} />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-[#F5F5DC]">显示系统信息</div>
                         <div className="text-sm text-[#F5F5DC]/60">显示系统状态信息</div>
                       </div>
-                      <Switch checked={userSettings.interface.showSystemInfo} onCheckedChange={(checked) => updateSetting('interface', 'showSystemInfo', checked)} />
+                      <Switch checked={userSettings.interface.showSystemInfo} onCheckedChange={checked => updateSetting('interface', 'showSystemInfo', checked)} />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-[#F5F5DC]">紧凑模式</div>
                         <div className="text-sm text-[#F5F5DC]/60">减少界面元素间距</div>
                       </div>
-                      <Switch checked={userSettings.interface.compactMode} onCheckedChange={(checked) => updateSetting('interface', 'compactMode', checked)} />
+                      <Switch checked={userSettings.interface.compactMode} onCheckedChange={checked => updateSetting('interface', 'compactMode', checked)} />
                     </div>
                   </div>
                 </div>
@@ -775,7 +779,7 @@ export default function UserSettings(props) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">语言</label>
-                      <Select value={userSettings.interface.language} onValueChange={(value) => updateSetting('interface', 'language', value)}>
+                      <Select value={userSettings.interface.language} onValueChange={value => updateSetting('interface', 'language', value)}>
                         <SelectTrigger className="bg-black/20 border-gray-600">
                           <SelectValue />
                         </SelectTrigger>
@@ -788,7 +792,7 @@ export default function UserSettings(props) {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">时区</label>
-                      <Select value={userSettings.interface.timezone} onValueChange={(value) => updateSetting('interface', 'timezone', value)}>
+                      <Select value={userSettings.interface.timezone} onValueChange={value => updateSetting('interface', 'timezone', value)}>
                         <SelectTrigger className="bg-black/20 border-gray-600">
                           <SelectValue />
                         </SelectTrigger>
@@ -802,7 +806,7 @@ export default function UserSettings(props) {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">日期格式</label>
-                      <Select value={userSettings.interface.dateFormat} onValueChange={(value) => updateSetting('interface', 'dateFormat', value)}>
+                      <Select value={userSettings.interface.dateFormat} onValueChange={value => updateSetting('interface', 'dateFormat', value)}>
                         <SelectTrigger className="bg-black/20 border-gray-600">
                           <SelectValue />
                         </SelectTrigger>
@@ -815,7 +819,7 @@ export default function UserSettings(props) {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[#F5F5DC]/70 mb-2">时间格式</label>
-                      <Select value={userSettings.interface.timeFormat} onValueChange={(value) => updateSetting('interface', 'timeFormat', value)}>
+                      <Select value={userSettings.interface.timeFormat} onValueChange={value => updateSetting('interface', 'timeFormat', value)}>
                         <SelectTrigger className="bg-black/20 border-gray-600">
                           <SelectValue />
                         </SelectTrigger>
