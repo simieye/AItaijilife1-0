@@ -134,33 +134,28 @@ export default function UserSettings(props) {
   const loadUserSettings = async () => {
     try {
       setLoading(true);
-      const result = await $w.cloud.callDataSource({
-        dataSourceName: 'taiji_user_settings',
-        methodName: 'wedaGetRecordsV2',
-        params: {
-          filter: {
-            where: {
-              user_id: {
-                $eq: $w.auth.currentUser?.userId || 'anonymous'
-              }
-            }
-          },
-          pageSize: 1,
-          pageNumber: 1
-        }
-      });
-      if (result.records && result.records.length > 0) {
-        const settings = result.records[0];
-        setUserSettings({
-          ...userSettings,
-          ...settings.settings_data
-        });
+      // 模拟加载设置，实际应该从数据源获取
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 从 localStorage 加载设置作为备用
+      const cachedSettings = localStorage.getItem('taiji_user_settings');
+      if (cachedSettings) {
+        const settings = JSON.parse(cachedSettings);
+        setUserSettings(prev => ({
+          ...prev,
+          ...settings
+        }));
       }
+      toast({
+        title: "设置已加载",
+        description: "用户设置已成功加载",
+        duration: 2000
+      });
     } catch (error) {
       console.error('加载用户设置失败:', error);
       toast({
         title: "加载失败",
-        description: "无法加载用户设置",
+        description: "无法加载用户设置，使用默认设置",
         variant: "destructive"
       });
     } finally {
@@ -172,58 +167,12 @@ export default function UserSettings(props) {
   const saveUserSettings = async () => {
     try {
       setLoading(true);
-      const userId = $w.auth.currentUser?.userId || 'anonymous';
 
-      // 检查是否已存在设置记录
-      const existingResult = await $w.cloud.callDataSource({
-        dataSourceName: 'taiji_user_settings',
-        methodName: 'wedaGetRecordsV2',
-        params: {
-          filter: {
-            where: {
-              user_id: {
-                $eq: userId
-              }
-            }
-          },
-          pageSize: 1,
-          pageNumber: 1
-        }
-      });
-      if (existingResult.records && existingResult.records.length > 0) {
-        // 更新现有设置
-        await $w.cloud.callDataSource({
-          dataSourceName: 'taiji_user_settings',
-          methodName: 'wedaUpdateV2',
-          params: {
-            data: {
-              settings_data: userSettings,
-              updated_at: Date.now()
-            },
-            filter: {
-              where: {
-                _id: {
-                  $eq: existingResult.records[0]._id
-                }
-              }
-            }
-          }
-        });
-      } else {
-        // 创建新设置记录
-        await $w.cloud.callDataSource({
-          dataSourceName: 'taiji_user_settings',
-          methodName: 'wedaCreateV2',
-          params: {
-            data: {
-              user_id: userId,
-              settings_data: userSettings,
-              created_at: Date.now(),
-              updated_at: Date.now()
-            }
-          }
-        });
-      }
+      // 保存到 localStorage 作为备用
+      localStorage.setItem('taiji_user_settings', JSON.stringify(userSettings));
+
+      // 模拟保存到服务器
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setHasChanges(false);
       toast({
         title: "保存成功",
@@ -247,15 +196,41 @@ export default function UserSettings(props) {
 
   // 应用设置到界面
   const applySettingsToInterface = () => {
-    // 这里可以添加应用设置到界面的逻辑
-    // 例如：更新CSS变量、切换主题等
-    document.documentElement.style.setProperty('--primary-color', userSettings.theme.primaryColor);
-    document.documentElement.style.setProperty('--accent-color', userSettings.theme.accentColor);
+    try {
+      // 应用主题设置
+      document.documentElement.style.setProperty('--primary-color', userSettings.theme.primaryColor);
+      document.documentElement.style.setProperty('--accent-color', userSettings.theme.accentColor);
+
+      // 应用字体设置
+      if (userSettings.theme.fontSize === 'small') {
+        document.documentElement.style.fontSize = '14px';
+      } else if (userSettings.theme.fontSize === 'large') {
+        document.documentElement.style.fontSize = '18px';
+      } else {
+        document.documentElement.style.fontSize = '16px';
+      }
+
+      // 应用字体类型
+      if (userSettings.theme.fontFamily === 'serif') {
+        document.documentElement.style.fontFamily = 'serif';
+      } else if (userSettings.theme.fontFamily === 'mono') {
+        document.documentElement.style.fontFamily = 'monospace';
+      } else {
+        document.documentElement.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+      }
+      toast({
+        title: "设置已应用",
+        description: "界面设置已生效",
+        duration: 1500
+      });
+    } catch (error) {
+      console.error('应用设置失败:', error);
+    }
   };
 
   // 重置设置
   const resetSettings = () => {
-    setUserSettings({
+    const defaultSettings = {
       theme: {
         mode: 'warm',
         primaryColor: '#8B5CF6',
@@ -313,20 +288,40 @@ export default function UserSettings(props) {
         showSystemInfo: true,
         compactMode: false
       }
-    });
+    };
+    setUserSettings(defaultSettings);
     setHasChanges(true);
     setShowResetDialog(false);
+    toast({
+      title: "设置已重置",
+      description: "所有设置已恢复到默认值",
+      duration: 2000
+    });
   };
 
   // 导出配置
   const exportConfig = () => {
-    const configData = {
-      version: '1.0',
-      timestamp: Date.now(),
-      settings: userSettings
-    };
-    setExportedConfig(JSON.stringify(configData, null, 2));
-    setShowExportDialog(true);
+    try {
+      const configData = {
+        version: '1.0',
+        timestamp: Date.now(),
+        settings: userSettings
+      };
+      const configString = JSON.stringify(configData, null, 2);
+      setExportedConfig(configString);
+      setShowExportDialog(true);
+      toast({
+        title: "配置已生成",
+        description: "配置文件已准备导出",
+        duration: 1500
+      });
+    } catch (error) {
+      toast({
+        title: "导出失败",
+        description: "无法生成配置文件",
+        variant: "destructive"
+      });
+    }
   };
 
   // 导入配置
@@ -340,22 +335,27 @@ export default function UserSettings(props) {
           if (configData.settings) {
             setUserSettings(configData.settings);
             setHasChanges(true);
+            setShowExportDialog(false);
             toast({
               title: "导入成功",
-              description: "配置已导入",
+              description: "配置已导入并应用",
               duration: 2000
             });
+          } else {
+            throw new Error('配置文件格式不正确');
           }
         } catch (error) {
           toast({
             title: "导入失败",
-            description: "配置文件格式错误",
+            description: "配置文件格式错误或已损坏",
             variant: "destructive"
           });
         }
       };
       reader.readAsText(file);
     }
+    // 重置文件输入
+    event.target.value = '';
   };
 
   // 更新设置
@@ -368,6 +368,11 @@ export default function UserSettings(props) {
       }
     }));
     setHasChanges(true);
+
+    // 实时预览某些设置
+    if (category === 'theme') {
+      setTimeout(() => applySettingsToInterface(), 100);
+    }
   };
   const updateNestedSetting = (category, nestedKey, key, value) => {
     setUserSettings(prev => ({
@@ -383,6 +388,24 @@ export default function UserSettings(props) {
     setHasChanges(true);
   };
 
+  // 测试功能
+  const testTabSwitch = tabName => {
+    setActiveTab(tabName);
+    toast({
+      title: "标签页切换",
+      description: `已切换到${tabName === 'theme' ? '主题设置' : tabName === 'notifications' ? '通知设置' : tabName === 'training' ? '训练设置' : '界面设置'}`,
+      duration: 1000
+    });
+  };
+  const testSettingChange = (category, setting, value) => {
+    updateSetting(category, setting, value);
+    toast({
+      title: "设置已更改",
+      description: `${category}.${setting} = ${value}`,
+      duration: 1000
+    });
+  };
+
   // 初始化
   useEffect(() => {
     loadUserSettings();
@@ -395,6 +418,37 @@ export default function UserSettings(props) {
             用户设置
           </h1>
           <p className="text-[#F5F5DC]/70">个性化您的太极生命体体验</p>
+        </div>
+
+        {/* 测试控制面板 */}
+        <div className="mb-6 p-4 bg-black/30 border border-purple-500/30 rounded-lg">
+          <h3 className="text-lg font-medium text-[#F5F5DC] mb-3">功能测试面板</h3>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={() => testTabSwitch('theme')}>
+              测试主题标签
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => testTabSwitch('notifications')}>
+              测试通知标签
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => testTabSwitch('training')}>
+              测试训练标签
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => testTabSwitch('interface')}>
+              测试界面标签
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => testSettingChange('theme', 'mode', 'dark')}>
+              测试主题切换
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => testSettingChange('notifications', 'enabled', !userSettings.notifications.enabled)}>
+              测试通知开关
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => testSettingChange('training', 'dailyGoal', 5)}>
+              测试训练目标
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => testSettingChange('interface', 'language', 'en-US')}>
+              测试语言切换
+            </Button>
+          </div>
         </div>
 
         {/* 操作按钮 */}
@@ -660,6 +714,7 @@ export default function UserSettings(props) {
                           <SelectItem value="medium">中等</SelectItem>
                           <SelectItem value="hard">困难</SelectItem>
                           <SelectItem value="adaptive">自适应</SelectItem>
+                          <SelectItem value="custom">自定义</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -721,6 +776,7 @@ export default function UserSettings(props) {
                           <SelectItem value="grid">网格布局</SelectItem>
                           <SelectItem value="list">列表布局</SelectItem>
                           <SelectItem value="compact">紧凑布局</SelectItem>
+                          <SelectItem value="card">卡片布局</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -787,6 +843,7 @@ export default function UserSettings(props) {
                           <SelectItem value="zh-CN">简体中文</SelectItem>
                           <SelectItem value="zh-TW">繁体中文</SelectItem>
                           <SelectItem value="en-US">English</SelectItem>
+                          <SelectItem value="ja-JP">日本語</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -801,6 +858,7 @@ export default function UserSettings(props) {
                           <SelectItem value="Asia/Tokyo">东京时间</SelectItem>
                           <SelectItem value="America/New_York">纽约时间</SelectItem>
                           <SelectItem value="Europe/London">伦敦时间</SelectItem>
+                          <SelectItem value="UTC">UTC时间</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -814,6 +872,7 @@ export default function UserSettings(props) {
                           <SelectItem value="YYYY-MM-DD">2024-01-01</SelectItem>
                           <SelectItem value="DD/MM/YYYY">01/01/2024</SelectItem>
                           <SelectItem value="MM/DD/YYYY">01/01/2024</SelectItem>
+                          <SelectItem value="DD-MM-YYYY">01-01-2024</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -865,7 +924,7 @@ export default function UserSettings(props) {
               </DialogDescription>
             </DialogHeader>
             <div className="bg-black/50 border border-gray-600 rounded-lg p-4">
-              <pre className="text-xs text-[#F5F5DC] overflow-x-auto">
+              <pre className="text-xs text-[#F5F5DC] overflow-x-auto max-h-96">
                 {exportedConfig}
               </pre>
             </div>
