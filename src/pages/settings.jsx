@@ -427,7 +427,7 @@ export default function UserSettings(props) {
               <Bell className="w-4 h-4" />
               通知设置
             </button>
-            <button onClick={() => setActiveTab('training')} className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${activeTab === 'training' ? 'bg-purple-600/20 text-purple-400 border-b-2 border-purple-400' : 'text-[#F5F5DC]/70 hover:text-[#F5F5DC]'}`}>
+            <button onClick={() => setActiveTab('training')} className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${activeTab === 'training' ? 'bg-purple-600/20 text-purple-400 border-b-2 border-purple-400' : 'text-[#F5F5DC]/70 hover:text-[#F5F5DC]'}>
               <Brain className="w-4 h-4" />
               训练设置
             </button>
@@ -444,8 +444,8 @@ export default function UserSettings(props) {
                   <h3 className="text-lg font-medium text-[#F5F5DC] mb-4">主题模式</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {Object.entries(themePresets).map(([key, preset]) => {
-                    const Icon = preset.icon;
-                    return <Card key={key} className={`bg-black/20 border-2 cursor-pointer transition-all ${userSettings.theme.mode === key ? 'border-purple-500/50' : 'border-gray-600 hover:border-purple-500/30'}`} onClick={() => updateSetting('theme', 'mode', key)}>
+                      const Icon = preset.icon;
+                      return <Card key={key} className={`bg-black/20 border-2 cursor-pointer transition-all ${userSettings.theme.mode === key ? 'border-purple-500/50' : 'border-gray-600 hover:border-purple-500/30'}`} onClick={() => updateSetting('theme', 'mode', key)}>
                         <CardContent className="p-4">
                           <div className="text-center space-y-2">
                             <Icon className={`w-8 h-8 mx-auto ${userSettings.theme.mode === key ? 'text-purple-400' : 'text-[#F5F5DC]/60'}`} />
@@ -885,4 +885,3 @@ export default function UserSettings(props) {
       </div>
     </div>;
 }
-  
