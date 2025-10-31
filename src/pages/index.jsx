@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 // @ts-ignore;
 import { Card, CardContent, CardHeader, CardTitle, Button, Progress, Tabs, TabsContent, TabsList, TabsTrigger, Badge, Switch, Alert, AlertDescription, AlertTitle, useToast, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui';
 // @ts-ignore;
-import { Brain, Zap, Heart, Shield, Eye, MemoryStick, Settings, Sparkles, Activity, Lock, Unlock, Power, RotateCcw, CheckCircle, AlertTriangle, Download, Upload, FileText, ShieldCheck, Users, Edit3, Clock, RefreshCw, Bot, BookOpen, Target, Play, Pause, Trophy, Star, BrainCircuit, HeartPulse, ShieldAlert, EyeOff } from 'lucide-react';
+import { Brain, Zap, Heart, Shield, Eye, MemoryStick, Settings, Sparkles, Activity, Lock, Unlock, Power, RotateCcw, CheckCircle, AlertTriangle, Download, Upload, FileText, ShieldCheck, Users, Edit3, Clock, RefreshCw, Bot, BookOpen, Target, Play, Pause, Trophy, Star, BrainCircuit, HeartPulse, ShieldAlert, EyeOff, TrendingUp, Award, BarChart3, PieChart, Calendar, Filter, Search, Plus, Minus, ChevronRight, ChevronDown, MoreVertical } from 'lucide-react';
 
 export default function TaijiLifeformSystem(props) {
   const {
@@ -65,6 +65,17 @@ export default function TaijiLifeformSystem(props) {
     level: 1,
     streak: 0
   });
+  const [activeTab, setActiveTab] = useState('overview');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [systemStats, setSystemStats] = useState({
+    totalTrainingTime: 0,
+    averageScore: 0,
+    completedTasks: 0,
+    unlockedAchievements: 0
+  });
 
   // 自动化定时器引用
   const awakeningCheckInterval = useRef(null);
@@ -72,6 +83,7 @@ export default function TaijiLifeformSystem(props) {
   const evolutionMonitorInterval = useRef(null);
   const memoryTrainingInterval = useRef(null);
   const dataSyncInterval = useRef(null);
+  const notificationInterval = useRef(null);
 
   // 云端 API 接口
   const cloudAPIs = {
@@ -305,6 +317,9 @@ export default function TaijiLifeformSystem(props) {
 
       // 处理成就数据
       setAchievements(achievementsResult.records || []);
+
+      // 计算系统统计
+      calculateSystemStats(userProgressResult.records || [], achievementsResult.records || []);
       setRealTimeStatus({
         message: '✅ 数据加载完成',
         type: 'success',
@@ -320,6 +335,20 @@ export default function TaijiLifeformSystem(props) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // 计算系统统计
+  const calculateSystemStats = (progress, achievements) => {
+    const completedTasks = progress.filter(p => p.status === 'completed').length;
+    const totalScore = progress.reduce((sum, p) => sum + (p.best_score || 0), 0);
+    const averageScore = progress.length > 0 ? Math.round(totalScore / progress.length) : 0;
+    const totalTrainingTime = progress.reduce((sum, p) => sum + (p.duration || 0), 0);
+    setSystemStats({
+      totalTrainingTime,
+      averageScore,
+      completedTasks,
+      unlockedAchievements: achievements.length
+    });
   };
 
   // 实时数据同步
@@ -616,6 +645,88 @@ export default function TaijiLifeformSystem(props) {
     if (dataSyncInterval.current) clearInterval(dataSyncInterval.current);
   };
 
+  // 检查觉醒条件
+  const checkAwakeningConditions = async () => {
+    try {
+      setRealTimeStatus({
+        message: '正在检查觉醒条件...',
+        type: 'info',
+        timestamp: Date.now()
+      });
+      const response = await cloudAPIs.awake();
+      if (response.shouldAwaken) {
+        await triggerAutoAwakening(response);
+      }
+    } catch (error) {
+      setRealTimeStatus({
+        message: `觉醒检查失败: ${error.message}`,
+        type: 'error',
+        timestamp: Date.now()
+      });
+    }
+  };
+
+  // 自动触发觉醒
+  const triggerAutoAwakening = async awakeResponse => {
+    setIsAwakening(true);
+    await updateEvolutionData({
+      current_phase: '太极·初',
+      total_progress: 100,
+      awakening_status: 'awakened',
+      awakening_time: new Date().getTime(),
+      auto_triggered: true
+    });
+    await addLogEntry({
+      log_type: 'auto_awakening',
+      trigger_event: '自动觉醒触发',
+      virtual_response: '太极生命体已自动觉醒，满足所有验证条件',
+      awakening_details: awakeResponse
+    });
+    setCurrentPhase('太极·初');
+    setProgress(100);
+    setRealTimeStatus({
+      message: ' 太极生命体已自动觉醒！',
+      type: 'success',
+      timestamp: Date.now()
+    });
+    setIsAwakening(false);
+  };
+
+  // 更新进化数据
+  const updateEvolutionData = async updates => {
+    try {
+      if (!evolutionData) return;
+      await $w.cloud.callDataSource({
+        dataSourceName: 'taiji_evolution',
+        methodName: 'wedaUpdateV2',
+        params: {
+          data: updates,
+          filter: {
+            where: {
+              _id: {
+                $eq: evolutionData._id
+              }
+            }
+          }
+        }
+      });
+      await loadAllData();
+    } catch (error) {
+      toast({
+        title: "更新失败",
+        description: `无法更新进化数据: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  // 过滤训练任务
+  const filteredTrainingTasks = trainingTasks.filter(task => {
+    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) || task.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = filterCategory === 'all' || task.category === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   // 初始化
   useEffect(() => {
     loadAllData();
@@ -657,100 +768,175 @@ export default function TaijiLifeformSystem(props) {
           <p className="text-[#F5F5DC]/70">云端实时同步 · 真实数据驱动</p>
         </div>
 
-        {/* 主控制面板 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* 进化进度 */}
-          <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
-                <Sparkles className="text-purple-400" />
-                进化进度
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between text-sm text-[#F5F5DC]/80">
-                  <span>当前象位: {currentPhase}</span>
-                  <span>{Math.round(progress)}%</span>
-                </div>
-                <Progress value={progress} className="h-2" />
-                <div className="grid grid-cols-4 gap-2">
-                  {phases.slice(0, 16).map((phase, i) => <Badge key={i} variant={i < phases.indexOf(currentPhase) ? "default" : "outline"} className={`${i < phases.indexOf(currentPhase) ? 'bg-gradient-to-r from-purple-600 to-cyan-600' : ''} text-[#F5F5DC] text-xs`}>
-                      {phase}
-                    </Badge>)}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* 标签页导航 */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList className="grid w-full grid-cols-4 bg-black/30 border border-gray-600">
+            <TabsTrigger value="overview" className="text-[#F5F5DC]">总览</TabsTrigger>
+            <TabsTrigger value="training" className="text-[#F5F5DC]">训练</TabsTrigger>
+            <TabsTrigger value="achievements" className="text-[#F5F5DC]">成就</TabsTrigger>
+            <TabsTrigger value="logs" className="text-[#F5F5DC]">日志</TabsTrigger>
+          </TabsList>
 
-          {/* 记忆金字塔 */}
-          <Card className="bg-black/30 border-blue-500/30 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
-                <MemoryStick className="text-blue-400" />
-                记忆金字塔
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between mb-1 text-sm text-[#F5F5DC]/80">
-                    <span>短期记忆</span>
-                    <span>{memoryData.stm}/20</span>
+          {/* 总览标签页 */}
+          <TabsContent value="overview" className="space-y-6">
+            {/* 系统统计卡片 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-[#F5F5DC]">{systemStats.completedTasks}</div>
+                      <div className="text-sm text-[#F5F5DC]/70">已完成任务</div>
+                    </div>
+                    <CheckCircle className="w-8 h-8 text-green-400" />
                   </div>
-                  <Progress value={memoryData.stm * 5} className="h-2" />
-                </div>
-                <div>
-                  <div className="flex justify-between mb-1 text-sm text-[#F5F5DC]/80">
-                    <span>中期记忆</span>
-                    <span>{memoryData.mtm}/50</span>
-                  </div>
-                  <Progress value={memoryData.mtm * 2} className="h-2" />
-                </div>
-                <div>
-                  <div className="flex justify-between mb-1 text-sm text-[#F5F5DC]/80">
-                    <span>长期记忆</span>
-                    <span>{memoryData.ltm}/200</span>
-                  </div>
-                  <Progress value={memoryData.ltm * 0.5} className="h-2" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
 
-          {/* 自动化控制 */}
-          <Card className="bg-black/30 border-cyan-500/30 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
-                <Bot className="text-cyan-400" />
-                云端同步控制
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <Button variant={autoEvolution.isActive ? "default" : "outline"} onClick={autoEvolution.isActive ? stopAutoEvolution : startAutoEvolution} className="w-full flex items-center gap-2">
-                  {autoEvolution.isActive ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                  {autoEvolution.isActive ? '停止同步' : '启动同步'}
-                </Button>
-                <div className="text-xs text-[#F5F5DC]/60 text-center">
-                  云端状态: {cloudStatus}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              <Card className="bg-black/30 border-blue-500/30 backdrop-blur-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-[#F5F5DC]">{systemStats.averageScore}%</div>
+                      <div className="text-sm text-[#F5F5DC]/70">平均得分</div>
+                    </div>
+                    <BarChart3 className="w-8 h-8 text-blue-400" />
+                  </div>
+                </CardContent>
+              </Card>
 
-        {/* 记忆训练系统 - 真实数据 */}
-        <Card className="bg-black/30 border-green-500/30 backdrop-blur-sm mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
-              <Brain className="text-green-400" />
-              记忆训练系统 (真实数据)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+              <Card className="bg-black/30 border-yellow-500/30 backdrop-blur-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-[#F5F5DC]">{systemStats.unlockedAchievements}</div>
+                      <div className="text-sm text-[#F5F5DC]/70">解锁成就</div>
+                    </div>
+                    <Trophy className="w-8 h-8 text-yellow-400" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-black/30 border-green-500/30 backdrop-blur-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-[#F5F5DC]">{Math.round(systemStats.totalTrainingTime / 60)}h</div>
+                      <div className="text-sm text-[#F5F5DC]/70">训练时长</div>
+                    </div>
+                    <Clock className="w-8 h-8 text-green-400" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* 主控制面板 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* 进化进度 */}
+              <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
+                    <Sparkles className="text-purple-400" />
+                    进化进度
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between text-sm text-[#F5F5DC]/80">
+                      <span>当前象位: {currentPhase}</span>
+                      <span>{Math.round(progress)}%</span>
+                    </div>
+                    <Progress value={progress} className="h-2" />
+                    <div className="grid grid-cols-4 gap-2">
+                      {phases.slice(0, 16).map((phase, i) => <Badge key={i} variant={i < phases.indexOf(currentPhase) ? "default" : "outline"} className={`${i < phases.indexOf(currentPhase) ? 'bg-gradient-to-r from-purple-600 to-cyan-600' : ''} text-[#F5F5DC] text-xs`}>
+                          {phase}
+                        </Badge>)}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 记忆金字塔 */}
+              <Card className="bg-black/30 border-blue-500/30 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
+                    <MemoryStick className="text-blue-400" />
+                    记忆金字塔
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-1 text-sm text-[#F5F5DC]/80">
+                        <span>短期记忆</span>
+                        <span>{memoryData.stm}/20</span>
+                      </div>
+                      <Progress value={memoryData.stm * 5} className="h-2" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1 text-sm text-[#F5F5DC]/80">
+                        <span>中期记忆</span>
+                        <span>{memoryData.mtm}/50</span>
+                      </div>
+                      <Progress value={memoryData.mtm * 2} className="h-2" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1 text-sm text-[#F5F5DC]/80">
+                        <span>长期记忆</span>
+                        <span>{memoryData.ltm}/200</span>
+                      </div>
+                      <Progress value={memoryData.ltm * 0.5} className="h-2" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 自动化控制 */}
+              <Card className="bg-black/30 border-cyan-500/30 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
+                    <Bot className="text-cyan-400" />
+                    云端同步控制
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <Button variant={autoEvolution.isActive ? "default" : "outline"} onClick={autoEvolution.isActive ? stopAutoEvolution : startAutoEvolution} className="w-full flex items-center gap-2">
+                      {autoEvolution.isActive ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                      {autoEvolution.isActive ? '停止同步' : '启动同步'}
+                    </Button>
+                    <div className="text-xs text-[#F5F5DC]/60 text-center">
+                      云端状态: {cloudStatus}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* 训练标签页 */}
+          <TabsContent value="training" className="space-y-6">
+            {/* 搜索和过滤 */}
+            <Card className="bg-black/30 border-gray-600 backdrop-blur-sm">
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#F5F5DC]/50" />
+                    <input type="text" placeholder="搜索训练任务..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC] placeholder-[#F5F5DC]/50 focus:outline-none focus:border-purple-500" />
+                  </div>
+                  <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="px-4 py-2 bg-black/20 border border-gray-600 rounded-lg text-[#F5F5DC] focus:outline-none focus:border-purple-500">
+                    <option value="all">所有分类</option>
+                    <option value="memory">记忆训练</option>
+                    <option value="ethics">伦理训练</option>
+                    <option value="evolution">进化训练</option>
+                  </select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 训练任务列表 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {trainingTasks.map(task => {
+              {filteredTrainingTasks.map(task => {
               const progress = userProgress.find(p => p.task_id === task.task_id);
               const isCompleted = progress?.status === 'completed';
               const currentProgress = progress?.score || 0;
@@ -795,12 +981,14 @@ export default function TaijiLifeformSystem(props) {
             })}
             </div>
 
-            {trainingTasks.length === 0 && <div className="text-center py-8">
+            {filteredTrainingTasks.length === 0 && <div className="text-center py-8">
                 <Brain className="w-12 h-12 mx-auto mb-4 text-[#F5F5DC]/50" />
-                <div className="text-[#F5F5DC]/70">暂无训练任务</div>
-                <Button size="sm" variant="outline" onClick={loadAllData} className="mt-4">
-                  <RefreshCw className="w-3 h-3 mr-1" />
-                  重新加载
+                <div className="text-[#F5F5DC]/70">没有找到匹配的训练任务</div>
+                <Button size="sm" variant="outline" onClick={() => {
+              setSearchQuery('');
+              setFilterCategory('all');
+            }} className="mt-4">
+                  清除过滤条件
                 </Button>
               </div>}
 
@@ -814,90 +1002,64 @@ export default function TaijiLifeformSystem(props) {
                   训练进度: {Math.round(memoryTraining.score)}%
                 </div>
               </div>}
-          </CardContent>
-        </Card>
+          </TabsContent>
 
-        {/* 成就展示 */}
-        {achievements.length > 0 && <Card className="bg-black/30 border-yellow-500/30 backdrop-blur-sm mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
-                <Trophy className="text-yellow-400" />
-                已解锁成就 ({achievements.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {achievements.map(achievement => <Card key={achievement.achievement_id} className="bg-black/20 border-gray-600">
-                    <CardContent className="p-4 text-center">
-                      <Star className="w-8 h-8 mx-auto mb-2 text-yellow-400" />
-                      <div className="font-medium text-[#F5F5DC] text-sm">{achievement.title}</div>
-                      <div className="text-xs text-[#F5F5DC]/70 mt-1">{achievement.description}</div>
-                      <Badge variant="outline" className="text-xs mt-2">
-                        +{achievement.points} 点数
-                      </Badge>
+          {/* 成就标签页 */}
+          <TabsContent value="achievements" className="space-y-6">
+            {achievements.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {achievements.map(achievement => <Card key={achievement.achievement_id} className="bg-black/20 border-gray-600 hover:border-yellow-500/50 transition-all">
+                    <CardContent className="p-4">
+                      <div className="text-center space-y-3">
+                        <Star className="w-12 h-12 mx-auto text-yellow-400" />
+                        <div>
+                          <div className="font-medium text-[#F5F5DC]">{achievement.title}</div>
+                          <div className="text-sm text-[#F5F5DC]/70">{achievement.description}</div>
+                        </div>
+                        <div className="flex items-center justify-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {achievement.category}
+                          </Badge>
+                          <Badge variant="default" className="text-xs">
+                            +{achievement.points} 点数
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-[#F5F5DC]/60">
+                          解锁时间: {new Date(achievement.unlocked_at).toLocaleDateString()}
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>)}
-              </div>
-            </CardContent>
-          </Card>}
+              </div> : <div className="text-center py-8">
+                <Trophy className="w-12 h-12 mx-auto mb-4 text-[#F5F5DC]/50" />
+                <div className="text-[#F5F5DC]/70">暂无解锁的成就</div>
+                <div className="text-sm text-[#F5F5DC]/50 mt-2">完成训练任务来解锁成就</div>
+              </div>}
+          </TabsContent>
 
-        {/* 用户进度统计 */}
-        {userProgress.length > 0 && <Card className="bg-black/30 border-purple-500/30 backdrop-blur-sm mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#F5F5DC]">
-                <Activity className="text-purple-400" />
-                训练统计
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-[#F5F5DC]">{userProgress.length}</div>
-                  <div className="text-sm text-[#F5F5DC]/70">总训练次数</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-400">
-                    {userProgress.filter(p => p.status === 'completed').length}
-                  </div>
-                  <div className="text-sm text-[#F5F5DC]/70">已完成</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-400">
-                    {Math.round(userProgress.reduce((sum, p) => sum + (p.best_score || 0), 0) / userProgress.length) || 0}%
-                  </div>
-                  <div className="text-sm text-[#F5F5DC]/70">平均得分</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-yellow-400">
-                    {Math.max(...userProgress.map(p => p.streak_count || 0))}
-                  </div>
-                  <div className="text-sm text-[#F5F5DC]/70">最高连击</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>}
-
-        {/* 最近日志 */}
-        {logsData.length > 0 && <Card className="bg-black/30 border-gray-600 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-sm text-[#F5F5DC]">云端实时日志</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {logsData.map((log, index) => <div key={log._id || index} className="text-sm text-[#F5F5DC]/80 p-3 bg-black/20 rounded-lg">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <span className="font-medium">{log.trigger_event}</span>
-                        <div className="text-xs text-[#F5F5DC]/60 mt-1">{log.virtual_response}</div>
+          {/* 日志标签页 */}
+          <TabsContent value="logs" className="space-y-6">
+            <Card className="bg-black/30 border-gray-600 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-sm text-[#F5F5DC]">云端实时日志</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {logsData.map((log, index) => <div key={log._id || index} className="text-sm text-[#F5F5DC]/80 p-3 bg-black/20 rounded-lg">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <span className="font-medium">{log.trigger_event}</span>
+                          <div className="text-xs text-[#F5F5DC]/60 mt-1">{log.virtual_response}</div>
+                        </div>
+                        <span className="text-xs text-[#F5F5DC]/50">
+                          {new Date(log.timestamp).toLocaleTimeString()}
+                        </span>
                       </div>
-                      <span className="text-xs text-[#F5F5DC]/50">
-                        {new Date(log.timestamp).toLocaleTimeString()}
-                      </span>
-                    </div>
-                  </div>)}
-              </div>
-            </CardContent>
-          </Card>}
+                    </div>)}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>;
 }
